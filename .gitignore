@@ -106,3 +106,4 @@ $RECYCLE.BIN/
 *.user
 *.userosscache
 *.sln.docstates
+*.db
