@@ -1,0 +1,6 @@
+@BatchIQ.API_HostAddress = http://localhost:5073
+
+GET {{BatchIQ.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
