@@ -11,6 +11,18 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<BatchIQDbContext>(opt =>
     opt.UseSqlite(builder.Configuration.GetConnectionString("Default") ?? "Data Source=batchiq.db"));
+
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:3000", "https://localhost:3000")
+                  .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowCredentials();
+        });
+});
 var app = builder.Build();
 
 
@@ -33,9 +45,9 @@ app.MapPost("/api/products", async (BatchIQDbContext db, ProductDto dto) =>
     var product = new Product
     {
         PersianName = dto.PersianName,
-        Brand       = dto.Brand,
-        Size        = dto.Size,
-        SizeUnit    = dto.SizeUnit
+        Brand = dto.Brand,
+        Size = dto.Size,
+        SizeUnit = dto.SizeUnit
     };
     db.Products.Add(product);
     await db.SaveChangesAsync();
@@ -46,17 +58,18 @@ app.MapPost("/api/transactions", async (BatchIQDbContext db, TransactionDto dto)
 {
     var trx = new InventoryTransaction
     {
-        ProductId     = dto.ProductId,
-        FromLocationId= dto.FromLocationId,
-        ToLocationId  = dto.ToLocationId,
-        Quantity      = dto.Quantity,
+        ProductId = dto.ProductId,
+        FromLocationId = dto.FromLocationId,
+        ToLocationId = dto.ToLocationId,
+        Quantity = dto.Quantity,
         TransactionType = dto.TransactionType,
-        ExpiryDate    = dto.ExpiryDate
+        ExpiryDate = dto.ExpiryDate
     };
     db.InventoryTransactions.Add(trx);
     await db.SaveChangesAsync();
     return Results.Ok(trx);
 });
+app.UseCors();
 
 app.Run();
 
