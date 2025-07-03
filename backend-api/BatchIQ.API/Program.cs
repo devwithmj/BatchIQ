@@ -43,20 +43,40 @@ app.MapGet("/api/products", async (BatchIQDbContext db) =>
 app.MapPost("/api/products", async (BatchIQDbContext db, ProductDto dto) =>
 {
     var product = new Product
-    {
-        PersianName = dto.PersianName,
-        Brand = dto.Brand,
-        Size = dto.Size,
-        SizeUnit = dto.SizeUnit
-    };
+{
+    NameEn    = dto.NameEn,
+    NameFa    = dto.NameFa,
+    BrandEn   = dto.BrandEn,
+    BrandFa   = dto.BrandFa,
+    SizeValue = dto.SizeValue,
+    UnitType  = dto.UnitType,
+    Price     = dto.Price
+};
+
     db.Products.Add(product);
     await db.SaveChangesAsync();
     return Results.Created($"/api/products/{product.Id}", product);
 });
+app.MapPut("/api/products/{id:int}", async (int id, ProductDto dto, BatchIQDbContext db) =>
+{
+    var product = await db.Products.FindAsync(id);
+    if (product is null) return Results.NotFound();
 
+    product.NameEn    = dto.NameEn;
+    product.NameFa    = dto.NameFa;
+    product.BrandEn   = dto.BrandEn;
+    product.BrandFa   = dto.BrandFa;
+    product.SizeValue = dto.SizeValue;
+    product.UnitType  = dto.UnitType;
+    product.Price     = dto.Price;
+    db.Products.Update(product);
+    await db.SaveChangesAsync();
+    return Results.NoContent();
+});
 app.MapPost("/api/transactions", async (BatchIQDbContext db, TransactionDto dto) =>
 {
-    var trx = new InventoryTransaction
+    var trx = new
+    InventoryTransaction
     {
         ProductId = dto.ProductId,
         FromLocationId = dto.FromLocationId,

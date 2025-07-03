@@ -7,12 +7,21 @@ public class Product
 {
     public int Id { get; set; }
 
-    // Required core fields
-    public string PersianName { get; set; } = null!;
-    public string Brand { get; set; } = null!;
-    public decimal Size { get; set; }          // e.g. 500, 1.0
-    public SizeUnit SizeUnit { get; set; }     // g, kg, piece …
+    //-- names
+    public string NameEn  { get; set; } = null!;
+    public string NameFa  { get; set; } = null!;
 
-    // Relationships
+    //-- brands
+    public string BrandEn { get; set; } = null!;
+    public string BrandFa { get; set; } = null!;
+
+    //-- size & unit
+    public decimal SizeValue { get; set; }
+    public SizeUnit UnitType { get; set; }   // 0=g, 1=kg, …
+
+    //-- price
+    public decimal Price { get; set; }       // sell price or SKU price
+
+    //-- multiple codes
     public ICollection<ProductCode> Codes { get; set; } = new List<ProductCode>();
 }
