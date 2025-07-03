@@ -1,0 +1,73 @@
+.DS_Store
+
+# Build results
+bin/
+obj/
+out/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Mono Auto Generated Files
+mono_crash.*
+
+# ASP.NET Scaffolding
+ScaffoldingReadMe.txt
+
+# Visual Studio Code
+.vscode/
+
+# NuGet Packages
+*.nupkg
+# The packages folder can be ignored because of Package Restore
+**/packages/*
+!**/packages/build/
+!**/packages/repositories.config
+
+# Microsoft Azure Web App publish settings
+*.PublishSettings
+
+# Rider
+.idea/
+
+# Local test results
+TestResults/
+*.VisualState.xml
+*.vsp
+*.vspx
+*.sap
+
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# DotCover
+*.dotCover
+
+# NCrunch
+*.ncrunch*
+_NCrunch_*
+.*crunch*.local.xml
+
+# SonarQube
+.sonar/
+
+# StyleCop
+StyleCopReport.xml
+
+# Files built by Visual Studio
+*.dbmdl
+*.bak
+*.backup
+*.log
+*.db
+# Resharper
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+
+# VS Code settings
+.history/
