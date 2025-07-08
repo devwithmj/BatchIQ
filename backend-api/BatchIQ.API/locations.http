@@ -1,0 +1,62 @@
+### Location API Tests
+
+@baseUrl = https://localhost:7071/api
+
+### Get all locations
+GET {{baseUrl}}/locations
+
+### Get specific location by ID
+GET {{baseUrl}}/locations/1
+
+### Create a new location (Warehouse)
+POST {{baseUrl}}/locations
+Content-Type: application/json
+
+{
+  "name": "Main Warehouse",
+  "locationType": 1,
+  "parentLocationId": null
+}
+
+### Create a sub-location (Zone)
+POST {{baseUrl}}/locations
+Content-Type: application/json
+
+{
+  "name": "Zone A-1",
+  "locationType": 4,
+  "parentLocationId": 1
+}
+
+### Update a location
+PUT {{baseUrl}}/locations/1
+Content-Type: application/json
+
+{
+  "name": "Updated Main Warehouse",
+  "locationType": 1,
+  "parentLocationId": null
+}
+
+### Delete a location
+DELETE {{baseUrl}}/locations/2
+
+### Test creating location with invalid parent
+POST {{baseUrl}}/locations
+Content-Type: application/json
+
+{
+  "name": "Invalid Location",
+  "locationType": 2,
+  "parentLocationId": 999
+}
+
+### Test creating circular reference
+PUT {{baseUrl}}/locations/1
+Content-Type: application/json
+
+{
+  "name": "Circular Test",
+  "locationType": 1,
+  "parentLocationId": 2
+}

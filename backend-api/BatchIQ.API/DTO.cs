@@ -15,6 +15,13 @@ internal record ProductDto(int? id,
 );
 
 
+internal record LocationDto(
+    int? Id,
+    string Name,
+    LocationType LocationType,
+    int? ParentLocationId
+);
+
 internal record TransactionDto(int ProductId, int? FromLocationId, int? ToLocationId,
                                decimal Quantity, TransactionType TransactionType,
                                DateTime? ExpiryDate);

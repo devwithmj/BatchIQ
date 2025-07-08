@@ -52,7 +52,7 @@ const schema = z.object({
 type FormValues = z.infer<typeof schema>;
 
 /* enum mapping to backend numeric enum */
-const unitMap = { g: 0, kg: 1, lb: 2, pcs: 3 } as const;
+const unitMap = { g: 1, kg: 2, lb: 3, pcs: 4 } as const;
 type UnitLabel = keyof typeof unitMap;
 
 /* ------------------------------------------------------------------ */

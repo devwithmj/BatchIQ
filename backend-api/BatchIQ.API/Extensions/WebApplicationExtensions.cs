@@ -1,0 +1,30 @@
+using BatchIQ.API.Endpoints;
+
+namespace BatchIQ.API.Extensions;
+
+public static class WebApplicationExtensions
+{
+    public static WebApplication ConfigurePipeline(this WebApplication app)
+    {
+        // Configure the HTTP request pipeline
+        if (app.Environment.IsDevelopment())
+        {
+            app.UseSwagger();
+            app.UseSwaggerUI();
+        }
+
+        app.UseHttpsRedirection();
+        app.UseCors();
+
+        return app;
+    }
+
+    public static WebApplication MapEndpoints(this WebApplication app)
+    {
+        app.MapProductEndpoints();
+        app.MapLocationEndpoints();
+        app.MapTransactionEndpoints();
+
+        return app;
+    }
+}

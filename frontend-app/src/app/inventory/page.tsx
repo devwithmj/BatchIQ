@@ -152,8 +152,8 @@ export default function InventoryPage() {
 }
 
 const SizeUnitText: Record<number, string> = {
-  0: "g",
-  1: "kg",
-  2: "lb",
-  3: "pcs",
+  1: "g",
+  2: "kg", 
+  3: "lb",
+  4: "pcs",
 };
