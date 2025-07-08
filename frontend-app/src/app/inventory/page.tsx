@@ -22,60 +22,138 @@ type Product = {
 };
 
 export default function InventoryPage() {
+  const [searchTerm, setSearchTerm] = useState("");
+  
   const { data, isLoading } = useQuery<Product[]>({
     queryKey: ["inventory"],
     queryFn: async () => (await api.get("/api/products")).data,
   });
+
+  // Filter products based on search term
+  const filteredProducts = useMemo(() => {
+    if (!data) return [];
+    if (!searchTerm) return data;
+    
+    return data.filter((product) =>
+      product.nameEn.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.nameFa.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.brandEn.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.brandFa.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.codes.some(code => code.toLowerCase().includes(searchTerm.toLowerCase()))
+    );
+  }, [data, searchTerm]);
+
   if (isLoading) return <p className="p-4">Loading…</p>;
+  
   return (
     <AdminLayout>
-      <div className="flex justify-end mb-4">
+      {/* Header with search and add button */}
+      <div className="flex items-center justify-between mb-6">
+        <div className="relative max-w-md flex-1">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+          <Input
+            placeholder="Search products by name, brand, or code..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10"
+          />
+        </div>
         <ProductFormDialog /> {/* default is "Add" mode */}
       </div>
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {data?.map((p) => (
-          <Card key={p.id} className="relative group">
-            {/* edit button floating top-right */}
-            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition">
-              <ProductFormDialog
-                defaultValues={{
-                  id: p.id,
-                  nameEn: p.nameEn,
-                  brandEn: p.brandEn,
-                  sizeValue: p.sizeValue,
-                  price: p.price,
-                  nameFa: p.nameFa,
-                  brandFa: p.brandFa,
-                  codes: p.codes || [],
-                }}
-              />
-            </div>
-            <CardHeader>
-              <CardTitle className="flex flex-col">
-                {p.nameEn} ({p.nameFa})
-                <span className="text-sm text-muted-foreground">
-                  {p.brandEn} ({p.brandFa})
-                </span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm">
-                Size: {p.sizeValue} {SizeUnitText[p.unitType]}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                Codes: {p.codes.join(", ")}
-              </p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+
+      {/* Products Table */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Products ({filteredProducts.length})</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="border-b border-border">
+                  <th className="text-left p-3 font-medium text-muted-foreground">Product Name</th>
+                  <th className="text-left p-3 font-medium text-muted-foreground">Brand</th>
+                  <th className="text-left p-3 font-medium text-muted-foreground">Size</th>
+                  <th className="text-left p-3 font-medium text-muted-foreground">Price</th>
+                  <th className="text-left p-3 font-medium text-muted-foreground">Codes</th>
+                  <th className="text-right p-3 font-medium text-muted-foreground">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredProducts.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="text-center p-8 text-muted-foreground">
+                      {searchTerm ? "No products found matching your search." : "No products available."}
+                    </td>
+                  </tr>
+                ) : (
+                  filteredProducts.map((product) => (
+                    <tr key={product.id} className="border-b border-border hover:bg-muted/50 transition-colors">
+                      <td className="p-3">
+                        <div className="flex flex-col">
+                          <span className="font-medium">{product.nameEn}</span>
+                          <span className="text-sm text-muted-foreground">{product.nameFa}</span>
+                        </div>
+                      </td>
+                      <td className="p-3">
+                        <div className="flex flex-col">
+                          <span className="font-medium">{product.brandEn}</span>
+                          <span className="text-sm text-muted-foreground">{product.brandFa}</span>
+                        </div>
+                      </td>
+                      <td className="p-3">
+                        <span className="text-sm">
+                          {product.sizeValue} {SizeUnitText[product.unitType]}
+                        </span>
+                      </td>
+                      <td className="p-3">
+                        <span className="font-medium">${product.price}</span>
+                      </td>
+                      <td className="p-3">
+                        <div className="flex flex-wrap gap-1">
+                          {product.codes.map((code, index) => (
+                            <span
+                              key={index}
+                              className="inline-block bg-muted px-2 py-1 rounded text-xs"
+                            >
+                              {code}
+                            </span>
+                          ))}
+                        </div>
+                      </td>
+                      <td className="p-3 text-right">
+                        <ProductFormDialog
+                          defaultValues={{
+                            id: product.id,
+                            nameEn: product.nameEn,
+                            brandEn: product.brandEn,
+                            sizeValue: product.sizeValue,
+                            price: product.price,
+                            nameFa: product.nameFa,
+                            brandFa: product.brandFa,
+                            codes: product.codes || [],
+                          }}
+                        >
+                          <Button variant="ghost" size="sm">
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                        </ProductFormDialog>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
     </AdminLayout>
   );
 }
 
 const SizeUnitText: Record<number, string> = {
-  1: "g",
-  2: "kg",
-  3: "lb",
-  4: "pcs",
+  0: "g",
+  1: "kg",
+  2: "lb",
+  3: "pcs",
 };
