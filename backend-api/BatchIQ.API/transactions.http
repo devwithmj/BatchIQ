@@ -1,0 +1,103 @@
+### Transaction API Tests
+
+@baseUrl = https://localhost:7071/api
+
+### Get all transactions
+GET {{baseUrl}}/transactions
+
+### Get specific transaction by ID
+GET {{baseUrl}}/transactions/1
+
+### Create a new transaction (Stock In)
+POST {{baseUrl}}/transactions
+Content-Type: application/json
+
+{
+  "productId": 1,
+  "fromLocationId": null,
+  "toLocationId": 1,
+  "quantity": 100,
+  "transactionType": 1,
+  "expiryDate": "2025-12-31T00:00:00"
+}
+
+### Create a transfer transaction
+POST {{baseUrl}}/transactions
+Content-Type: application/json
+
+{
+  "productId": 1,
+  "fromLocationId": 1,
+  "toLocationId": 2,
+  "quantity": 50,
+  "transactionType": 3,
+  "expiryDate": "2025-12-31T00:00:00"
+}
+
+### Create a stock out transaction (Sale)
+POST {{baseUrl}}/transactions
+Content-Type: application/json
+
+{
+  "productId": 1,
+  "fromLocationId": 1,
+  "toLocationId": null,
+  "quantity": 25,
+  "transactionType": 2,
+  "expiryDate": null
+}
+
+### Update a transaction
+PUT {{baseUrl}}/transactions/1
+Content-Type: application/json
+
+{
+  "productId": 1,
+  "fromLocationId": 1,
+  "toLocationId": 2,
+  "quantity": 75,
+  "transactionType": 3,
+  "expiryDate": "2025-11-30T00:00:00"
+}
+
+### Delete a transaction
+DELETE {{baseUrl}}/transactions/3
+
+### Test creating transaction with invalid product
+POST {{baseUrl}}/transactions
+Content-Type: application/json
+
+{
+  "productId": 999,
+  "fromLocationId": 1,
+  "toLocationId": 2,
+  "quantity": 10,
+  "transactionType": 3,
+  "expiryDate": null
+}
+
+### Test creating transaction with invalid location
+POST {{baseUrl}}/transactions
+Content-Type: application/json
+
+{
+  "productId": 1,
+  "fromLocationId": 999,
+  "toLocationId": 1,
+  "quantity": 10,
+  "transactionType": 3,
+  "expiryDate": null
+}
+
+### Test creating transaction with negative quantity
+POST {{baseUrl}}/transactions
+Content-Type: application/json
+
+{
+  "productId": 1,
+  "fromLocationId": 1,
+  "toLocationId": 2,
+  "quantity": -10,
+  "transactionType": 3,
+  "expiryDate": null
+}
