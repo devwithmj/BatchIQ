@@ -22,6 +22,7 @@ public static class WebApplicationExtensions
     public static WebApplication MapEndpoints(this WebApplication app)
     {
         app.MapProductEndpoints();
+        app.MapProductBOMEndpoints();
         app.MapLocationEndpoints();
         app.MapTransactionEndpoints();
 

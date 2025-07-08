@@ -10,8 +10,10 @@ public class BatchIQDbContext : DbContext
 
     public DbSet<Product> Products => Set<Product>();
     public DbSet<ProductCode> ProductCodes => Set<ProductCode>();
+    public DbSet<ProductBOM> ProductBOMs => Set<ProductBOM>();
     public DbSet<Location> Locations => Set<Location>();
     public DbSet<InventoryTransaction> InventoryTransactions => Set<InventoryTransaction>();
+    public DbSet<ProductionTransaction> ProductionTransactions => Set<ProductionTransaction>();
 
     protected override void OnModelCreating(ModelBuilder b)
     {

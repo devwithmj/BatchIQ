@@ -1,0 +1,134 @@
+### ProductBOM API Tests
+
+@baseUrl = https://localhost:7151
+
+### Get all products
+GET {{baseUrl}}/api/products
+
+### Get products by type (Raw Materials)
+GET {{baseUrl}}/api/products?productType=1
+
+### Get manufactured products only
+GET {{baseUrl}}/api/products?isManufactured=true
+
+### Create a raw material product (Pistachio)
+POST {{baseUrl}}/api/products
+Content-Type: application/json
+
+{
+  "nameEn": "Pistachio",
+  "nameFa": "پسته",
+  "brandEn": "Premium",
+  "brandFa": "پریمیوم",
+  "productType": 1,
+  "sizeValue": 1,
+  "unitType": 2,
+  "baseUnit": 1,
+  "price": 25.00,
+  "isManufactured": false,
+  "codes": ["123456789012"]
+}
+
+### Create another raw material (Almond)
+POST {{baseUrl}}/api/products
+Content-Type: application/json
+
+{
+  "nameEn": "Almond",
+  "nameFa": "بادام",
+  "brandEn": "Premium",
+  "brandFa": "پریمیوم",
+  "productType": 1,
+  "sizeValue": 1,
+  "unitType": 2,
+  "baseUnit": 1,
+  "price": 30.00,
+  "isManufactured": false,
+  "codes": ["123456789013"]
+}
+
+### Create a finished product (Mixed Nuts)
+POST {{baseUrl}}/api/products
+Content-Type: application/json
+
+{
+  "nameEn": "Mixed Nuts",
+  "nameFa": "آجیل مخلوط",
+  "brandEn": "Deluxe",
+  "brandFa": "دلوکس",
+  "productType": 3,
+  "sizeValue": 250,
+  "unitType": 1,
+  "baseUnit": 1,
+  "price": 12.50,
+  "isManufactured": true,
+  "codes": ["123456789014"]
+}
+
+### Get product with BOM details (replace {id} with actual product ID)
+GET {{baseUrl}}/api/products/3/with-bom
+
+### Get all manufactured products
+GET {{baseUrl}}/api/product-bom/manufactured-products
+
+### Get available components for a product (replace {id} with actual product ID)
+GET {{baseUrl}}/api/product-bom/available-components/3
+
+### Create BOM entry (Mixed Nuts = 100g Pistachio + 150g Almond)
+### Replace product IDs with actual IDs from creation responses
+POST {{baseUrl}}/api/product-bom
+Content-Type: application/json
+
+{
+  "parentProductId": 3,
+  "componentProductId": 1,
+  "quantityRequired": 100,
+  "unit": 1,
+  "costPerUnit": 0.025,
+  "isCritical": true,
+  "notes": "Premium pistachio component",
+  "sequence": 1
+}
+
+### Create another BOM entry
+POST {{baseUrl}}/api/product-bom
+Content-Type: application/json
+
+{
+  "parentProductId": 3,
+  "componentProductId": 2,
+  "quantityRequired": 150,
+  "unit": 1,
+  "costPerUnit": 0.030,
+  "isCritical": true,
+  "notes": "Premium almond component",
+  "sequence": 2
+}
+
+### Get all BOM entries
+GET {{baseUrl}}/api/product-bom
+
+### Get BOM entries for a specific product
+GET {{baseUrl}}/api/product-bom/product/3
+
+### Get specific BOM entry (replace {id} with actual BOM ID)
+GET {{baseUrl}}/api/product-bom/1
+
+### Update BOM entry (replace {id} with actual BOM ID)
+PUT {{baseUrl}}/api/product-bom/1
+Content-Type: application/json
+
+{
+  "quantityRequired": 120,
+  "unit": 1,
+  "costPerUnit": 0.028,
+  "isCritical": true,
+  "notes": "Updated pistachio component quantity",
+  "sequence": 1
+}
+
+### Get material cost calculation for a product
+GET {{baseUrl}}/api/product-bom/material-cost/3
+
+### Delete BOM entry (replace {id} with actual BOM ID)
+# DELETE {{baseUrl}}/api/product-bom/1

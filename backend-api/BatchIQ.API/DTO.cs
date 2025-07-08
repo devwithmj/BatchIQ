@@ -14,7 +14,89 @@ internal record ProductDto(int? id,
     List<string> Codes
 );
 
+// Enhanced Product DTOs
+internal record CreateProductDto(
+    string NameEn,
+    string NameFa,
+    string BrandEn,
+    string BrandFa,
+    ProductType? ProductType,
+    decimal SizeValue,
+    SizeUnit UnitType,
+    SizeUnit? BaseUnit,
+    decimal Price,
+    bool? IsManufactured,
+    List<string>? Codes
+);
 
+internal record UpdateProductDto(
+    string NameEn,
+    string NameFa,
+    string BrandEn,
+    string BrandFa,
+    ProductType? ProductType,
+    decimal SizeValue,
+    SizeUnit UnitType,
+    SizeUnit? BaseUnit,
+    decimal Price,
+    bool? IsManufactured,
+    List<string>? Codes
+);
+
+// Enhanced Product DTO with BOM information
+internal record ProductWithBOMDto(
+    int Id,
+    string NameEn,
+    string NameFa,
+    string BrandEn,
+    string BrandFa,
+    ProductType ProductType,
+    decimal SizeValue,
+    SizeUnit UnitType,
+    SizeUnit BaseUnit,
+    decimal Price,
+    bool IsManufactured,
+    List<string> Codes,
+    List<ProductBOMDto> Components,
+    decimal? MaterialCost
+);
+
+// ProductBOM DTOs
+internal record ProductBOMDto(
+    int Id,
+    int ParentProductId,
+    string ParentProductName,
+    int ComponentProductId,
+    string ComponentProductName,
+    decimal QuantityRequired,
+    SizeUnit Unit,
+    decimal? CostPerUnit,
+    bool IsCritical,
+    string? Notes,
+    int? Sequence
+);
+
+internal record CreateProductBOMDto(
+    int ParentProductId,
+    int ComponentProductId,
+    decimal QuantityRequired,
+    SizeUnit Unit,
+    decimal? CostPerUnit = null,
+    bool IsCritical = true,
+    string? Notes = null,
+    int? Sequence = null
+);
+
+internal record UpdateProductBOMDto(
+    decimal QuantityRequired,
+    SizeUnit Unit,
+    decimal? CostPerUnit = null,
+    bool IsCritical = true,
+    string? Notes = null,
+    int? Sequence = null
+);
+
+// Original DTOs
 internal record LocationDto(
     int? Id,
     string Name,

@@ -1,4 +1,5 @@
 using BatchIQ.Domain.Entities;
+using BatchIQ.Domain.Extensions;
 
 namespace BatchIQ.API.Models;
 
@@ -13,10 +14,95 @@ public static class ResponseModels
             nameFa = product.NameFa,
             brandEn = product.BrandEn,
             brandFa = product.BrandFa,
+            productType = product.ProductType,
             sizeValue = product.SizeValue,
             unitType = product.UnitType,
+            baseUnit = product.BaseUnit,
             price = product.Price,
+            isManufactured = product.IsManufactured,
             codes = product.Codes?.Select(c => c.Code).ToList() ?? new List<string>()
+        };
+    }
+
+    public static object ToProductWithBOMResponse(this Product product)
+    {
+        return new
+        {
+            id = product.Id,
+            nameEn = product.NameEn,
+            nameFa = product.NameFa,
+            brandEn = product.BrandEn,
+            brandFa = product.BrandFa,
+            productType = product.ProductType,
+            sizeValue = product.SizeValue,
+            unitType = product.UnitType,
+            baseUnit = product.BaseUnit,
+            price = product.Price,
+            isManufactured = product.IsManufactured,
+            materialCost = product.GetMaterialCost(),
+            codes = product.Codes?.Select(c => c.Code).ToList() ?? new List<string>(),
+            components = product.Components?.Select(c => c.ToProductBOMResponse()).ToList() ?? new List<object>(),
+            usedInProducts = product.UsedInProducts?.Select(u => (object)new
+            {
+                id = u.Id,
+                parentProductId = u.ParentProductId,
+                parentProductName = u.ParentProduct?.NameEn,
+                quantityRequired = u.QuantityRequired,
+                unit = u.Unit
+            }).ToList() ?? new List<object>()
+        };
+    }
+
+    public static object ToProductBOMResponse(this ProductBOM bom)
+    {
+        return new
+        {
+            id = bom.Id,
+            parentProductId = bom.ParentProductId,
+            parentProductName = bom.ParentProduct?.NameEn,
+            componentProductId = bom.ComponentProductId,
+            componentProductName = bom.ComponentProduct?.NameEn,
+            quantityRequired = bom.QuantityRequired,
+            unit = bom.Unit,
+            costPerUnit = bom.CostPerUnit,
+            isCritical = bom.IsCritical,
+            notes = bom.Notes,
+            sequence = bom.Sequence,
+            totalCost = bom.CostPerUnit.HasValue ? bom.QuantityRequired * bom.CostPerUnit.Value : (decimal?)null
+        };
+    }
+
+    public static object ToProductBOMDetailResponse(this ProductBOM bom)
+    {
+        return new
+        {
+            id = bom.Id,
+            parentProduct = bom.ParentProduct != null ? new
+            {
+                id = bom.ParentProduct.Id,
+                nameEn = bom.ParentProduct.NameEn,
+                nameFa = bom.ParentProduct.NameFa,
+                brandEn = bom.ParentProduct.BrandEn,
+                brandFa = bom.ParentProduct.BrandFa,
+                baseUnit = bom.ParentProduct.BaseUnit
+            } : null,
+            componentProduct = bom.ComponentProduct != null ? new
+            {
+                id = bom.ComponentProduct.Id,
+                nameEn = bom.ComponentProduct.NameEn,
+                nameFa = bom.ComponentProduct.NameFa,
+                brandEn = bom.ComponentProduct.BrandEn,
+                brandFa = bom.ComponentProduct.BrandFa,
+                baseUnit = bom.ComponentProduct.BaseUnit,
+                currentPrice = bom.ComponentProduct.Price
+            } : null,
+            quantityRequired = bom.QuantityRequired,
+            unit = bom.Unit,
+            costPerUnit = bom.CostPerUnit,
+            isCritical = bom.IsCritical,
+            notes = bom.Notes,
+            sequence = bom.Sequence,
+            totalCost = bom.CostPerUnit.HasValue ? bom.QuantityRequired * bom.CostPerUnit.Value : (decimal?)null
         };
     }
 
