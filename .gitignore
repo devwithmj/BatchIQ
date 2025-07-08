@@ -1,2 +1,4 @@
 .DS_Store
 frontend-app/package-lock.json
+backend-api/BatchIQ.API/batchiq.db-wal
+backend-api/BatchIQ.API/batchiq.db-shm

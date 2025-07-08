@@ -1,17 +1,24 @@
 "use client";
 import AdminLayout from "@/components/layout/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { api } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
 import ProductFormDialog from "@/components/product/ProductFormDialog";
+import { Search, Pencil } from "lucide-react";
+import { useState, useMemo } from "react";
 
 type Product = {
   id: number;
-  persianName: string;
-  brand: string;
-  size: number;
-  sizeUnit: number; // 1=g,2=kg,...
-  codes: { code: string }[];
+  nameEn: string;
+  nameFa: string;
+  brandEn: string;
+  brandFa: string;
+  sizeValue: number;
+  unitType: number; // 1=g,2=kg,...
+  price: number;
+  codes: string[]; // array of barcodes or PLUs
 };
 
 export default function InventoryPage() {
@@ -19,9 +26,7 @@ export default function InventoryPage() {
     queryKey: ["inventory"],
     queryFn: async () => (await api.get("/api/products")).data,
   });
-
   if (isLoading) return <p className="p-4">Loading…</p>;
-
   return (
     <AdminLayout>
       <div className="flex justify-end mb-4">
@@ -35,25 +40,30 @@ export default function InventoryPage() {
               <ProductFormDialog
                 defaultValues={{
                   id: p.id,
-                  nameFa: p.persianName,
-                  brandFa: p.brand,
-                  sizeValue: p.size,
-                  unitType: SizeUnitText[p.sizeUnit] as "g" | "kg" | "lb" | "pcs",
+                  nameEn: p.nameEn,
+                  brandEn: p.brandEn,
+                  sizeValue: p.sizeValue,
+                  price: p.price,
+                  nameFa: p.nameFa,
+                  brandFa: p.brandFa,
+                  codes: p.codes || [],
                 }}
               />
             </div>
             <CardHeader>
               <CardTitle className="flex flex-col">
-                {p.persianName}
-                <span className="text-sm text-muted-foreground">{p.brand}</span>
+                {p.nameEn} ({p.nameFa})
+                <span className="text-sm text-muted-foreground">
+                  {p.brandEn} ({p.brandFa})
+                </span>
               </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-sm">
-                Size: {p.size} {SizeUnitText[p.sizeUnit]}
+                Size: {p.sizeValue} {SizeUnitText[p.unitType]}
               </p>
               <p className="text-xs text-muted-foreground">
-                Codes: {p.codes.map((c) => c.code).join(", ")}
+                Codes: {p.codes.join(", ")}
               </p>
             </CardContent>
           </Card>

@@ -1,6 +1,7 @@
 using BatchIQ.API;
 using BatchIQ.Domain.Entities;
 using BatchIQ.Persistence;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,6 +24,7 @@ builder.Services.AddCors(options =>
                     .AllowCredentials();
         });
 });
+
 var app = builder.Build();
 
 
@@ -36,22 +38,39 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.MapGet("/api/products", async (BatchIQDbContext db) =>
-    await db.Products
-            .Include(p => p.Codes)
-            .ToListAsync());
+{
+    var products = await db.Products
+        .Include(p => p.Codes)
+        .ToListAsync();
+
+    var result = products.Select(p => new
+    {
+        id = p.Id,
+        nameEn = p.NameEn,
+        nameFa = p.NameFa,
+        brandEn = p.BrandEn,
+        brandFa = p.BrandFa,
+        sizeValue = p.SizeValue,
+        unitType = p.UnitType,
+        price = p.Price,
+        codes = p.Codes?.Select(c => c.Code).ToList() ?? new List<string>()
+    }).ToList();
+
+    return Results.Ok(result);
+});
 
 app.MapPost("/api/products", async (BatchIQDbContext db, ProductDto dto) =>
 {
     var product = new Product
-{
-    NameEn    = dto.NameEn,
-    NameFa    = dto.NameFa,
-    BrandEn   = dto.BrandEn,
-    BrandFa   = dto.BrandFa,
-    SizeValue = dto.SizeValue,
-    UnitType  = dto.UnitType,
-    Price     = dto.Price
-};
+    {
+        NameEn = dto.NameEn,
+        NameFa = dto.NameFa,
+        BrandEn = dto.BrandEn,
+        BrandFa = dto.BrandFa,
+        SizeValue = dto.SizeValue,
+        UnitType = dto.UnitType,
+        Price = dto.Price
+    };
 
     db.Products.Add(product);
     await db.SaveChangesAsync();
@@ -61,15 +80,22 @@ app.MapPut("/api/products/{id:int}", async (int id, ProductDto dto, BatchIQDbCon
 {
     var product = await db.Products.FindAsync(id);
     if (product is null) return Results.NotFound();
-
-    product.NameEn    = dto.NameEn;
-    product.NameFa    = dto.NameFa;
-    product.BrandEn   = dto.BrandEn;
-    product.BrandFa   = dto.BrandFa;
+    product.NameEn = dto.NameEn;
+    product.NameFa = dto.NameFa;
+    product.BrandEn = dto.BrandEn;
+    product.BrandFa = dto.BrandFa;
     product.SizeValue = dto.SizeValue;
-    product.UnitType  = dto.UnitType;
-    product.Price     = dto.Price;
+    product.UnitType = dto.UnitType;
+    product.Price = dto.Price;
     db.Products.Update(product);
+    await db.SaveChangesAsync();
+
+    db.ProductCodes.RemoveRange(db.ProductCodes.Where(c => c.ProductId == id));
+    db.ProductCodes.AddRange(dto.Codes.Select(c => new ProductCode
+    {
+        Code = c,
+        ProductId = id
+    }));
     await db.SaveChangesAsync();
     return Results.NoContent();
 });
@@ -93,7 +119,3 @@ app.UseCors();
 
 app.Run();
 
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}

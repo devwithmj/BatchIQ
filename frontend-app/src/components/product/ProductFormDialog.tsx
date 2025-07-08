@@ -34,11 +34,12 @@ import * as z from "zod";
 import { api } from "@/lib/api";
 import { Pencil, Plus } from "lucide-react";
 import { toast } from "sonner";
+import { TagsInput } from "../ui/taginput";
 
 /* ------------------------------------------------------------------ */
-/* 1️⃣  Zod schema + TS type                                           */
+/* 1️⃣  Zod schema & types – numbers are coerced from strings          */
 /* ------------------------------------------------------------------ */
-const productSchema = z.object({
+const schema = z.object({
   nameEn: z.string().min(2),
   nameFa: z.string().min(2),
   brandEn: z.string().min(1),
@@ -46,20 +47,19 @@ const productSchema = z.object({
   sizeValue: z.coerce.number().positive(),
   unitType: z.enum(["g", "kg", "lb", "pcs"]),
   price: z.coerce.number().positive(),
+  codes: z.array(z.string().min(1)).optional(), // array of barcodes or PLUs
 });
-type ProductFormValues = z.infer<typeof productSchema>;
+type FormValues = z.infer<typeof schema>;
 
-/* ------------------------------------------------------------------ */
-/* 2️⃣  Numeric enum map (match backend SizeUnit enum order)           */
-/* ------------------------------------------------------------------ */
+/* enum mapping to backend numeric enum */
 const unitMap = { g: 0, kg: 1, lb: 2, pcs: 3 } as const;
 type UnitLabel = keyof typeof unitMap;
 
 /* ------------------------------------------------------------------ */
-/* 3️⃣  Component                                                      */
+/* 2️⃣  Dialog component                                               */
 /* ------------------------------------------------------------------ */
 type Props = {
-  defaultValues?: Partial<ProductFormValues> & { id?: number };
+  defaultValues?: Partial<FormValues> & { id?: number };
   children?: React.ReactNode;
 };
 
@@ -67,26 +67,25 @@ export default function ProductFormDialog({ defaultValues, children }: Props) {
   const isEdit = !!defaultValues?.id;
   const [open, setOpen] = useState(false);
   const qc = useQueryClient();
-
-  const form = useForm<ProductFormValues>({
-    resolver: zodResolver(productSchema),
+  /* ---------- always supply a value so inputs start controlled ----- */
+  const form = useForm<FormValues>({
+    resolver: zodResolver(schema),
     defaultValues: {
-      nameEn: "",
-      nameFa: "",
-      brandEn: "",
-      brandFa: "",
-      sizeValue: 0,
-      unitType: "g",
-      price: 0,
-      ...defaultValues,
-    },
+      nameEn: defaultValues?.nameEn ?? "",
+      nameFa: defaultValues?.nameFa ?? "",
+      brandEn: defaultValues?.brandEn ?? "",
+      brandFa: defaultValues?.brandFa ?? "",
+      sizeValue: defaultValues?.sizeValue?.toString() ?? "0",
+      unitType: (defaultValues?.unitType as UnitLabel) ?? "g",
+      price: defaultValues?.price?.toString() ?? "0",
+      codes: defaultValues?.codes ?? [],
+    } as any, // RHF accepts string→coerce
   });
 
-  /* ------------- mutation (create / update) ---------------------- */
+  /* ---------------- mutation -------------------------------------- */
   const mutation = useMutation({
-    mutationFn: async (data: ProductFormValues) => {
+    mutationFn: async (data: FormValues) => {
       const payload = { ...data, unitType: unitMap[data.unitType] };
-
       if (isEdit) {
         await api.put(`/api/products/${defaultValues!.id}`, payload);
       } else {
@@ -98,11 +97,17 @@ export default function ProductFormDialog({ defaultValues, children }: Props) {
       toast.success("Saved ✅");
       setOpen(false);
     },
-    onError: () =>
-      toast.error( "Error saving product"),
+    onError: () => toast("saved Failed ❌"),
   });
 
-  /* --------------------------- UI -------------------------------- */
+  /* utility to keep every Input controlled */
+  const ctrl = (field: any, type = "text") => ({
+    type,
+    value: field.value ?? "",
+    onChange: (e: any) => field.onChange(e.target.value),
+  });
+
+  /* --------------------------- UI --------------------------------- */
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -130,7 +135,7 @@ export default function ProductFormDialog({ defaultValues, children }: Props) {
             className="grid gap-4"
             onSubmit={form.handleSubmit((d) => mutation.mutate(d))}
           >
-            {/* English & Persian names */}
+            {/* Names */}
             <FormField
               control={form.control}
               name="nameEn"
@@ -138,7 +143,7 @@ export default function ProductFormDialog({ defaultValues, children }: Props) {
                 <FormItem>
                   <FormLabel>Name (EN)</FormLabel>
                   <FormControl>
-                    <Input placeholder="Fava Green Bean" {...field} />
+                    <Input placeholder="Fava Green Bean" {...ctrl(field)} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -151,14 +156,14 @@ export default function ProductFormDialog({ defaultValues, children }: Props) {
                 <FormItem>
                   <FormLabel>نام محصول (FA)</FormLabel>
                   <FormControl>
-                    <Input placeholder="لپه باقالا سبز" {...field} />
+                    <Input placeholder="لپه باقالا سبز" {...ctrl(field)} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
-            {/* English & Persian brands */}
+            {/* Brands */}
             <div className="grid gap-4 md:grid-cols-2">
               <FormField
                 control={form.control}
@@ -167,7 +172,7 @@ export default function ProductFormDialog({ defaultValues, children }: Props) {
                   <FormItem>
                     <FormLabel>Brand (EN)</FormLabel>
                     <FormControl>
-                      <Input placeholder="Pemina" {...field} />
+                      <Input placeholder="Pemina" {...ctrl(field)} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -180,7 +185,7 @@ export default function ProductFormDialog({ defaultValues, children }: Props) {
                   <FormItem>
                     <FormLabel>برند (FA)</FormLabel>
                     <FormControl>
-                      <Input placeholder="پِمینا" {...field} />
+                      <Input placeholder="پِمینا" {...ctrl(field)} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -198,10 +203,9 @@ export default function ProductFormDialog({ defaultValues, children }: Props) {
                     <FormLabel>Size</FormLabel>
                     <FormControl>
                       <Input
-                        type="number"
-                        step=".01"
                         placeholder="400"
-                        {...field}
+                        {...ctrl(field, "number")}
+                        step=".01"
                       />
                     </FormControl>
                     <FormMessage />
@@ -246,18 +250,38 @@ export default function ProductFormDialog({ defaultValues, children }: Props) {
                   <FormLabel>Price ($)</FormLabel>
                   <FormControl>
                     <Input
-                      type="number"
-                      step=".01"
                       placeholder="4.49"
-                      {...field}
+                      {...ctrl(field, "number")}
+                      step=".01"
                     />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-
-            {/* Submit */}
+            <FormField
+              control={form.control}
+              name="codes"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Barcodes</FormLabel>
+                  <FormControl>
+                    <TagsInput
+                      value={
+                        Array.isArray(field.value)
+                          ? field.value
+                          : field.value
+                          ? [String(field.value)]
+                          : []
+                      }
+                      onChange={field.onChange}
+                      placeholder="Enter barcode or PLU, press space or comma"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <Button type="submit" disabled={mutation.isPending}>
               {mutation.isPending ? "Saving…" : "Save"}
             </Button>

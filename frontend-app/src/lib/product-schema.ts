@@ -9,6 +9,7 @@ export const productSchema = z.object({
   sizeValue: z.coerce.number().positive(),
   unitType:  z.enum(["g", "kg", "lb", "pcs"]),
   price:     z.coerce.number().positive(),
+  codes:     z.array(z.object({ code: z.string().min(1) })).optional(),
 });
 
 export type ProductFormValues = z.infer<typeof productSchema>;
