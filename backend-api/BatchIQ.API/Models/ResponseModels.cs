@@ -214,4 +214,83 @@ public static class ResponseModels
             expiryDate = transaction.ExpiryDate
         };
     }
+
+    // Authentication Response Models
+    public static object ToUserResponse(this User user)
+    {
+        return new
+        {
+            id = user.Id,
+            username = user.Username,
+            email = user.Email,
+            firstName = user.FirstName,
+            lastName = user.LastName,
+            firstNameFa = user.FirstNameFa,
+            lastNameFa = user.LastNameFa,
+            isActive = user.IsActive,
+            emailConfirmed = user.EmailConfirmed,
+            createdAt = user.CreatedAt,
+            lastLoginAt = user.LastLoginAt,
+            roles = user.Roles?.Select(r => r.ToRoleResponse()).ToList() ?? new List<object>()
+        };
+    }
+
+    public static object ToUserDetailResponse(this User user)
+    {
+        return new
+        {
+            id = user.Id,
+            username = user.Username,
+            email = user.Email,
+            firstName = user.FirstName,
+            lastName = user.LastName,
+            firstNameFa = user.FirstNameFa,
+            lastNameFa = user.LastNameFa,
+            isActive = user.IsActive,
+            emailConfirmed = user.EmailConfirmed,
+            createdAt = user.CreatedAt,
+            updatedAt = user.UpdatedAt,
+            lastLoginAt = user.LastLoginAt,
+            roles = user.UserRoles?.Select(ur => ur.Role.ToRoleResponse()).ToList() ?? new List<object>()
+        };
+    }
+
+    public static object ToRoleResponse(this Role role)
+    {
+        return new
+        {
+            id = role.Id,
+            name = role.Name,
+            description = role.Description,
+            descriptionFa = role.DescriptionFa,
+            isActive = role.IsActive,
+            createdAt = role.CreatedAt,
+            permissions = role.RolePermissions?.Select(rp => rp.Permission.ToPermissionResponse()).ToList() ?? new List<object>()
+        };
+    }
+
+    public static object ToPermissionResponse(this Permission permission)
+    {
+        return new
+        {
+            id = permission.Id,
+            name = permission.Name,
+            description = permission.Description,
+            descriptionFa = permission.DescriptionFa,
+            category = permission.Category,
+            isActive = permission.IsActive
+        };
+    }
+
+    public static object ToLoginResponse(this User user, string token, string refreshToken, List<string> permissions)
+    {
+        return new
+        {
+            token = token,
+            refreshToken = refreshToken,
+            user = user.ToUserResponse(),
+            roles = user.Roles?.Select(r => r.Name).ToList() ?? new List<string>(),
+            permissions = permissions
+        };
+    }
 }

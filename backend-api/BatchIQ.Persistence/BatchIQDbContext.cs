@@ -28,9 +28,16 @@ public class BatchIQDbContext : DbContext
     public DbSet<ProcessTemplateInput> ProcessTemplateInputs => Set<ProcessTemplateInput>();
     public DbSet<ProcessTemplateOutput> ProcessTemplateOutputs => Set<ProcessTemplateOutput>();
 
-    protected override void OnModelCreating(ModelBuilder b)
+    // Authentication and Authorization entities
+    public DbSet<User> Users => Set<User>();
+    public DbSet<Role> Roles => Set<Role>();
+    public DbSet<UserRole> UserRoles => Set<UserRole>();
+    public DbSet<Permission> Permissions => Set<Permission>();
+    public DbSet<RolePermission> RolePermissions => Set<RolePermission>();
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        b.ApplyConfigurationsFromAssembly(typeof(BatchIQDbContext).Assembly);
-        base.OnModelCreating(b);
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(BatchIQDbContext).Assembly);
+        base.OnModelCreating(modelBuilder);
     }
 }
