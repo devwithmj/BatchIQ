@@ -57,9 +57,9 @@ public class AuthService : IAuthService
         };
 
         // Add role claims
-        foreach (var role in user.Roles)
+        foreach (var userRole in user.UserRoles)
         {
-            claims.Add(new Claim(ClaimTypes.Role, role.Name));
+            claims.Add(new Claim(ClaimTypes.Role, userRole.Role.Name));
         }
 
         // Add permission claims
@@ -116,9 +116,9 @@ public class AuthService : IAuthService
     {
         var permissions = new HashSet<string>();
         
-        foreach (var role in user.Roles)
+        foreach (var userRole in user.UserRoles)
         {
-            foreach (var rolePermission in role.RolePermissions)
+            foreach (var rolePermission in userRole.Role.RolePermissions)
             {
                 if (rolePermission.Permission.IsActive)
                 {

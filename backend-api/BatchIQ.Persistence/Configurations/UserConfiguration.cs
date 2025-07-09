@@ -57,10 +57,6 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
          .HasForeignKey(ur => ur.UserId)
          .OnDelete(DeleteBehavior.Cascade);
 
-        e.HasMany(u => u.Roles)
-         .WithMany(r => r.Users)
-         .UsingEntity<UserRole>();
-
         // Indexes
         e.HasIndex(u => u.Username)
          .IsUnique();

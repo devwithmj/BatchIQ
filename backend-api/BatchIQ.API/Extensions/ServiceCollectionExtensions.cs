@@ -71,6 +71,7 @@ public static class ServiceCollectionExtensions
         // Authentication & Authorization Services
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IUserService, UserService>();
+        services.AddScoped<IDatabaseSeeder, DatabaseSeeder>();
 
         // JWT Authentication
         var jwtKey = configuration["Jwt:Key"] ?? "your-super-secret-key-that-is-at-least-32-characters-long";

@@ -39,5 +39,4 @@ public class User
     
     // Navigation properties
     public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
-    public ICollection<Role> Roles { get; set; } = new List<Role>();
 }

@@ -37,7 +37,6 @@ public class UserService : IUserService
                 .ThenInclude(ur => ur.Role)
                     .ThenInclude(r => r.RolePermissions)
                         .ThenInclude(rp => rp.Permission)
-            .Include(u => u.Roles)
             .FirstOrDefaultAsync(u => u.Username == username && u.IsActive);
     }
 
@@ -48,7 +47,6 @@ public class UserService : IUserService
                 .ThenInclude(ur => ur.Role)
                     .ThenInclude(r => r.RolePermissions)
                         .ThenInclude(rp => rp.Permission)
-            .Include(u => u.Roles)
             .FirstOrDefaultAsync(u => u.Email == email && u.IsActive);
     }
 
@@ -59,7 +57,6 @@ public class UserService : IUserService
                 .ThenInclude(ur => ur.Role)
                     .ThenInclude(r => r.RolePermissions)
                         .ThenInclude(rp => rp.Permission)
-            .Include(u => u.Roles)
             .FirstOrDefaultAsync(u => u.Id == id);
     }
 

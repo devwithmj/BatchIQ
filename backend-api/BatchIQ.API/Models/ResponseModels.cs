@@ -231,7 +231,7 @@ public static class ResponseModels
             emailConfirmed = user.EmailConfirmed,
             createdAt = user.CreatedAt,
             lastLoginAt = user.LastLoginAt,
-            roles = user.Roles?.Select(r => r.ToRoleResponse()).ToList() ?? new List<object>()
+            roles = user.UserRoles?.Select(ur => ur.Role.ToRoleResponse()).ToList() ?? new List<object>()
         };
     }
 
@@ -289,7 +289,7 @@ public static class ResponseModels
             token = token,
             refreshToken = refreshToken,
             user = user.ToUserResponse(),
-            roles = user.Roles?.Select(r => r.Name).ToList() ?? new List<string>(),
+            roles = user.UserRoles?.Select(ur => ur.Role.Name).ToList() ?? new List<string>(),
             permissions = permissions
         };
     }
