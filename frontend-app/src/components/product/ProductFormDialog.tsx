@@ -25,41 +25,23 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 
 import { useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 
 import { api } from "@/lib/api";
+import { ProductType, SizeUnit, productTypeLabels, sizeUnitLabels } from "@/lib/bom-schema";
+import { ProductFormValues, resolver } from "@/lib/product-schema";
 import { Pencil, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { TagsInput } from "../ui/taginput";
 
 /* ------------------------------------------------------------------ */
-/* 1️⃣  Zod schema & types – numbers are coerced from strings          */
-/* ------------------------------------------------------------------ */
-const schema = z.object({
-  nameEn: z.string().min(2),
-  nameFa: z.string().min(2),
-  brandEn: z.string().min(1),
-  brandFa: z.string().min(1),
-  sizeValue: z.coerce.number().positive(),
-  unitType: z.enum(["g", "kg", "lb", "pcs"]),
-  price: z.coerce.number().positive(),
-  codes: z.array(z.string().min(1)).optional(), // array of barcodes or PLUs
-});
-type FormValues = z.infer<typeof schema>;
-
-/* enum mapping to backend numeric enum */
-const unitMap = { g: 1, kg: 2, lb: 3, pcs: 4 } as const;
-type UnitLabel = keyof typeof unitMap;
-
-/* ------------------------------------------------------------------ */
 /* 2️⃣  Dialog component                                               */
 /* ------------------------------------------------------------------ */
 type Props = {
-  defaultValues?: Partial<FormValues> & { id?: number };
+  defaultValues?: Partial<ProductFormValues> & { id?: number };
   children?: React.ReactNode;
 };
 
@@ -67,29 +49,32 @@ export default function ProductFormDialog({ defaultValues, children }: Props) {
   const isEdit = !!defaultValues?.id;
   const [open, setOpen] = useState(false);
   const qc = useQueryClient();
+  
   /* ---------- always supply a value so inputs start controlled ----- */
-  const form = useForm<FormValues>({
-    resolver: zodResolver(schema),
+  const form = useForm<ProductFormValues>({
+    resolver,
     defaultValues: {
       nameEn: defaultValues?.nameEn ?? "",
       nameFa: defaultValues?.nameFa ?? "",
       brandEn: defaultValues?.brandEn ?? "",
       brandFa: defaultValues?.brandFa ?? "",
-      sizeValue: defaultValues?.sizeValue?.toString() ?? "0",
-      unitType: (defaultValues?.unitType as UnitLabel) ?? "g",
-      price: defaultValues?.price?.toString() ?? "0",
+      productType: defaultValues?.productType ?? ProductType.RawMaterial,
+      sizeValue: defaultValues?.sizeValue ?? 0,
+      unitType: defaultValues?.unitType ?? SizeUnit.Gram,
+      baseUnit: defaultValues?.baseUnit ?? SizeUnit.Gram,
+      price: defaultValues?.price ?? 0,
+      isManufactured: defaultValues?.isManufactured ?? false,
       codes: defaultValues?.codes ?? [],
-    } as any, // RHF accepts string→coerce
+    },
   });
 
   /* ---------------- mutation -------------------------------------- */
   const mutation = useMutation({
-    mutationFn: async (data: FormValues) => {
-      const payload = { ...data, unitType: unitMap[data.unitType] };
+    mutationFn: async (data: ProductFormValues) => {
       if (isEdit) {
-        await api.put(`/api/products/${defaultValues!.id}`, payload);
+        await api.put(`/api/products/${defaultValues!.id}`, data);
       } else {
-        await api.post("/api/products", payload);
+        await api.post("/api/products", data);
       }
     },
     onSuccess: () => {
@@ -97,14 +82,7 @@ export default function ProductFormDialog({ defaultValues, children }: Props) {
       toast.success("Saved ✅");
       setOpen(false);
     },
-    onError: () => toast("saved Failed ❌"),
-  });
-
-  /* utility to keep every Input controlled */
-  const ctrl = (field: any, type = "text") => ({
-    type,
-    value: field.value ?? "",
-    onChange: (e: any) => field.onChange(e.target.value),
+    onError: () => toast("Save Failed ❌"),
   });
 
   /* --------------------------- UI --------------------------------- */
@@ -133,7 +111,7 @@ export default function ProductFormDialog({ defaultValues, children }: Props) {
         <Form {...form}>
           <form
             className="grid gap-4"
-            onSubmit={form.handleSubmit((d) => mutation.mutate(d))}
+            onSubmit={form.handleSubmit((data) => mutation.mutate(data))}
           >
             {/* Names */}
             <FormField
@@ -143,7 +121,7 @@ export default function ProductFormDialog({ defaultValues, children }: Props) {
                 <FormItem>
                   <FormLabel>Name (EN)</FormLabel>
                   <FormControl>
-                    <Input placeholder="Fava Green Bean" {...ctrl(field)} />
+                    <Input placeholder="Fava Green Bean" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -156,7 +134,7 @@ export default function ProductFormDialog({ defaultValues, children }: Props) {
                 <FormItem>
                   <FormLabel>نام محصول (FA)</FormLabel>
                   <FormControl>
-                    <Input placeholder="لپه باقالا سبز" {...ctrl(field)} />
+                    <Input placeholder="لپه باقالا سبز" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -172,7 +150,7 @@ export default function ProductFormDialog({ defaultValues, children }: Props) {
                   <FormItem>
                     <FormLabel>Brand (EN)</FormLabel>
                     <FormControl>
-                      <Input placeholder="Pemina" {...ctrl(field)} />
+                      <Input placeholder="Pemina" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -185,13 +163,42 @@ export default function ProductFormDialog({ defaultValues, children }: Props) {
                   <FormItem>
                     <FormLabel>برند (FA)</FormLabel>
                     <FormControl>
-                      <Input placeholder="پِمینا" {...ctrl(field)} />
+                      <Input placeholder="پِمینا" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
             </div>
+
+            {/* Product Type */}
+            <FormField
+              control={form.control}
+              name="productType"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Product Type</FormLabel>
+                  <Select
+                    onValueChange={(value) => field.onChange(parseInt(value))}
+                    value={field.value?.toString()}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {Object.entries(productTypeLabels).map(([value, label]) => (
+                        <SelectItem key={value} value={value}>
+                          {label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             {/* Size & Unit */}
             <div className="grid gap-4 md:grid-cols-2">
@@ -204,8 +211,11 @@ export default function ProductFormDialog({ defaultValues, children }: Props) {
                     <FormControl>
                       <Input
                         placeholder="400"
-                        {...ctrl(field, "number")}
-                        step=".01"
+                        type="number"
+                        step="0.01"
+                        {...field}
+                        value={field.value || ""}
+                        onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
                       />
                     </FormControl>
                     <FormMessage />
@@ -219,8 +229,8 @@ export default function ProductFormDialog({ defaultValues, children }: Props) {
                   <FormItem>
                     <FormLabel>Unit</FormLabel>
                     <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
+                      onValueChange={(value) => field.onChange(parseInt(value))}
+                      value={field.value?.toString()}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -228,9 +238,9 @@ export default function ProductFormDialog({ defaultValues, children }: Props) {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {Object.keys(unitMap).map((u) => (
-                          <SelectItem key={u} value={u}>
-                            {u}
+                        {Object.entries(sizeUnitLabels).map(([value, label]) => (
+                          <SelectItem key={value} value={value}>
+                            {label}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -240,6 +250,35 @@ export default function ProductFormDialog({ defaultValues, children }: Props) {
                 )}
               />
             </div>
+
+            {/* Base Unit */}
+            <FormField
+              control={form.control}
+              name="baseUnit"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Base Unit</FormLabel>
+                  <Select
+                    onValueChange={(value) => field.onChange(parseInt(value))}
+                    value={field.value?.toString()}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {Object.entries(sizeUnitLabels).map(([value, label]) => (
+                        <SelectItem key={value} value={value}>
+                          {label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             {/* Price */}
             <FormField
@@ -251,14 +290,40 @@ export default function ProductFormDialog({ defaultValues, children }: Props) {
                   <FormControl>
                     <Input
                       placeholder="4.49"
-                      {...ctrl(field, "number")}
-                      step=".01"
+                      type="number"
+                      step="0.01"
+                      {...field}
+                      value={field.value || ""}
+                      onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
                     />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
+            {/* Is Manufactured */}
+            <FormField
+              control={form.control}
+              name="isManufactured"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>
+                      Is Manufactured Product
+                    </FormLabel>
+                  </div>
+                </FormItem>
+              )}
+            />
+
+            {/* Barcodes */}
             <FormField
               control={form.control}
               name="codes"

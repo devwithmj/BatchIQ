@@ -3,21 +3,34 @@ import AdminLayout from "@/components/layout/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { api } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
-import ProductFormDialog from "@/components/product/ProductFormDialog";
-import { Search, Pencil } from "lucide-react";
+import BOMViewDialog from "@/components/product/BOMViewDialog";
+import { Search, Package, Factory } from "lucide-react";
 import { useState, useMemo } from "react";
 
-import { Product } from "@/lib/product-schema";
-import BOMViewDialog from "@/components/product/BOMViewDialog";
+type Product = {
+  id: number;
+  nameEn: string;
+  nameFa: string;
+  brandEn: string;
+  brandFa: string;
+  productType: number;
+  sizeValue: number;
+  unitType: number;
+  baseUnit: number;
+  price: number;
+  isManufactured: boolean;
+  codes: string[];
+};
 
-export default function InventoryPage() {
+export default function ManufacturingPage() {
   const [searchTerm, setSearchTerm] = useState("");
   
   const { data, isLoading } = useQuery<Product[]>({
-    queryKey: ["inventory"],
-    queryFn: async () => (await api.get("/api/products")).data,
+    queryKey: ["manufactured-products"],
+    queryFn: async () => (await api.get("/api/product-bom/manufactured-products")).data,
   });
 
   // Filter products based on search term
@@ -29,8 +42,7 @@ export default function InventoryPage() {
       product.nameEn.toLowerCase().includes(searchTerm.toLowerCase()) ||
       product.nameFa.toLowerCase().includes(searchTerm.toLowerCase()) ||
       product.brandEn.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.brandFa.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.codes.some(code => code.toLowerCase().includes(searchTerm.toLowerCase()))
+      product.brandFa.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [data, searchTerm]);
 
@@ -38,24 +50,32 @@ export default function InventoryPage() {
   
   return (
     <AdminLayout>
-      {/* Header with search and add button */}
+      {/* Header with search */}
       <div className="flex items-center justify-between mb-6">
-        <div className="relative max-w-md flex-1">
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <Factory className="h-6 w-6 text-blue-600" />
+            <h1 className="text-2xl font-semibold">Manufacturing</h1>
+          </div>
+        </div>
+        <div className="relative max-w-md flex-1 ml-4">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
           <Input
-            placeholder="Search products by name, brand, or code..."
+            placeholder="Search manufactured products..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-10"
           />
         </div>
-        <ProductFormDialog /> {/* default is "Add" mode */}
       </div>
 
       {/* Products Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Products ({filteredProducts.length})</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <Package className="h-5 w-5" />
+            Manufactured Products ({filteredProducts.length})
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
@@ -64,18 +84,17 @@ export default function InventoryPage() {
                 <tr className="border-b border-border">
                   <th className="text-left p-3 font-medium text-muted-foreground">Product Name</th>
                   <th className="text-left p-3 font-medium text-muted-foreground">Brand</th>
+                  <th className="text-left p-3 font-medium text-muted-foreground">Type</th>
                   <th className="text-left p-3 font-medium text-muted-foreground">Size</th>
                   <th className="text-left p-3 font-medium text-muted-foreground">Price</th>
-                  <th className="text-left p-3 font-medium text-muted-foreground">Codes</th>
-                  <th className="text-left p-3 font-medium text-muted-foreground">Manufactured</th>
                   <th className="text-right p-3 font-medium text-muted-foreground">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredProducts.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="text-center p-8 text-muted-foreground">
-                      {searchTerm ? "No products found matching your search." : "No products available."}
+                    <td colSpan={6} className="text-center p-8 text-muted-foreground">
+                      {searchTerm ? "No manufactured products found matching your search." : "No manufactured products available."}
                     </td>
                   </tr>
                 ) : (
@@ -94,40 +113,26 @@ export default function InventoryPage() {
                         </div>
                       </td>
                       <td className="p-3">
+                        <Badge variant="secondary">
+                          {getProductTypeLabel(product.productType)}
+                        </Badge>
+                      </td>
+                      <td className="p-3">
                         <span className="font-mono">{product.sizeValue}</span>
                       </td>
                       <td className="p-3">
                         <span className="font-mono">${product.price}</span>
                       </td>
                       <td className="p-3">
-                        <div className="flex flex-wrap gap-1">
-                          {product.codes?.map((code, idx) => (
-                            <span key={idx} className="bg-gray-100 px-2 py-1 rounded text-xs">
-                              {code}
-                            </span>
-                          ))}
-                        </div>
-                      </td>
-                      <td className="p-3">
-                        {product.isManufactured && (
-                          <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">
-                            Manufactured
-                          </span>
-                        )}
-                      </td>
-                      <td className="p-3">
                         <div className="flex items-center justify-end gap-1">
-                          <ProductFormDialog defaultValues={product}>
-                            <Button variant="ghost" size="sm">
-                              <Pencil className="h-4 w-4" />
+                          <BOMViewDialog 
+                            productId={product.id} 
+                            productName={product.nameEn}
+                          >
+                            <Button variant="outline" size="sm">
+                              View BOM
                             </Button>
-                          </ProductFormDialog>
-                          {product.isManufactured && (
-                            <BOMViewDialog 
-                              productId={product.id} 
-                              productName={product.nameEn}
-                            />
-                          )}
+                          </BOMViewDialog>
                         </div>
                       </td>
                     </tr>
@@ -140,4 +145,14 @@ export default function InventoryPage() {
       </Card>
     </AdminLayout>
   );
+}
+
+function getProductTypeLabel(type: number): string {
+  const types: Record<number, string> = {
+    1: "Raw Material",
+    2: "Ingredient", 
+    3: "Finished Product",
+    4: "Packaging",
+  };
+  return types[type] || "Unknown";
 }
