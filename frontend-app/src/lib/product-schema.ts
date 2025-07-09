@@ -13,6 +13,7 @@ export const productSchema = z.object({
   baseUnit: z.nativeEnum(SizeUnit),
   price: z.coerce.number().positive(),
   isManufactured: z.boolean(),
+  isProcessedProduct: z.boolean().optional(),
   codes: z.array(z.string().min(1)).optional(),
 });
 
@@ -32,5 +33,6 @@ export type Product = {
   baseUnit: typeof SizeUnit[keyof typeof SizeUnit];
   price: number;
   isManufactured: boolean;
+  isProcessedProduct?: boolean; // New field for process manufacturing
   codes: string[];
 };

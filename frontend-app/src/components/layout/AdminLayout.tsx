@@ -61,7 +61,7 @@ function Sidebar({ close }: { close?: () => void }) {
             <Item href="/transactions"     label="Transactions" />
             <Item href="/locations"        label="Locations" />
             <Separator className="my-2" />
-            <Item href="/settings/products" label="Products" />
+            <Item href="/products" label="Products" />
             <Item href="/settings/users"    label="Users & Roles" />
           </NavigationMenuList>
         </NavigationMenu>

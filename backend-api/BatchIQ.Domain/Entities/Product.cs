@@ -15,8 +15,10 @@ public class Product
     public string BrandEn { get; set; } = null!;
     public string BrandFa { get; set; } = null!;
 
-    //-- product classification
+    //-- manufacturing classification
     public ProductType ProductType { get; set; } = ProductType.Finished;
+    public bool IsManufactured { get; set; } = false;  // True if this product is made from other products
+    public bool IsProcessedProduct { get; set; } = false;  // True if this product comes from process manufacturing
 
     //-- size & unit (for packaging/display)
     public decimal SizeValue { get; set; }
@@ -24,17 +26,25 @@ public class Product
 
     //-- inventory management units
     public SizeUnit BaseUnit { get; set; }   // Base unit for inventory calculations (e.g., g for weight-based products)
-    public bool IsManufactured { get; set; } = false;  // True if this product is made from other products
 
     //-- price
     public decimal Price { get; set; }       // sell price or SKU price
 
+    //-- inventory management (optional enhancements)
+    public decimal? MinimumStock { get; set; }     // Minimum inventory level
+    public decimal? ReorderPoint { get; set; }     // When to reorder
+    public bool IsActive { get; set; } = true;     // Product lifecycle management
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime? UpdatedAt { get; set; }
+
     //-- multiple codes
     public ICollection<ProductCode> Codes { get; set; } = new List<ProductCode>();
     
-    //-- Bill of Materials (components needed to make this product)
+    //-- Traditional BOM (for assembly-type manufacturing like Mixed Nuts)
     public ICollection<ProductBOM> Components { get; set; } = new List<ProductBOM>();
-    
-    //-- Products that use this as a component
     public ICollection<ProductBOM> UsedInProducts { get; set; } = new List<ProductBOM>();
+
+    //-- Process Manufacturing (for transformation processes like Roasting)
+    public ICollection<BatchInput> UsedAsInput { get; set; } = new List<BatchInput>();
+    public ICollection<BatchOutput> ProducedAsOutput { get; set; } = new List<BatchOutput>();
 }

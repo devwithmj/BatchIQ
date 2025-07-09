@@ -26,6 +26,9 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
         e.Property(p => p.IsManufactured)
          .HasDefaultValue(false);
 
+        e.Property(p => p.IsProcessedProduct)
+         .HasDefaultValue(false);
+
         // Size and unit properties
         e.Property(p => p.SizeValue).HasColumnType("decimal(10,2)");
         
@@ -38,6 +41,25 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
          .HasDefaultValue(SizeUnit.Piece);
 
         e.Property(p => p.Price).HasColumnType("decimal(12,2)");
+
+        // Enhanced inventory management properties
+        e.Property(p => p.MinimumStock)
+         .HasColumnType("decimal(12,2)")
+         .IsRequired(false);
+
+        e.Property(p => p.ReorderPoint)
+         .HasColumnType("decimal(12,2)")
+         .IsRequired(false);
+
+        e.Property(p => p.IsActive)
+         .HasDefaultValue(true);
+
+        e.Property(p => p.CreatedAt)
+         .HasDefaultValueSql("datetime('now')")
+         .IsRequired();
+
+        e.Property(p => p.UpdatedAt)
+         .IsRequired(false);
 
         // Relationships
         e.HasMany(p => p.Codes)
@@ -55,9 +77,23 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
          .HasForeignKey(bom => bom.ComponentProductId)
          .OnDelete(DeleteBehavior.Restrict); // Prevent deletion if product is used as component
 
+        // Process Manufacturing relationships
+        e.HasMany(p => p.UsedAsInput)
+         .WithOne(bi => bi.Product)
+         .HasForeignKey(bi => bi.ProductId)
+         .OnDelete(DeleteBehavior.Restrict);
+
+        e.HasMany(p => p.ProducedAsOutput)
+         .WithOne(bo => bo.Product)
+         .HasForeignKey(bo => bo.ProductId)
+         .OnDelete(DeleteBehavior.Restrict);
+
         // Indexes for performance
         e.HasIndex(p => p.ProductType);
         e.HasIndex(p => p.IsManufactured);
+        e.HasIndex(p => p.IsProcessedProduct);
+        e.HasIndex(p => p.IsActive);
+        e.HasIndex(p => p.CreatedAt);
         e.HasIndex(p => new { p.NameEn, p.BrandEn });
         e.HasIndex(p => new { p.NameFa, p.BrandFa });
     }

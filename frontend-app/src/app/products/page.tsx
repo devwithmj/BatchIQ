@@ -126,6 +126,10 @@ export default function InventoryPage() {
                             <BOMViewDialog 
                               productId={product.id} 
                               productName={product.nameEn}
+                              productNameFa={product.nameFa}
+                              isManufactured={product.isManufactured}
+                              isProcessedProduct={product.isProcessedProduct}
+                              productType={product.productType}
                             />
                           )}
                         </div>

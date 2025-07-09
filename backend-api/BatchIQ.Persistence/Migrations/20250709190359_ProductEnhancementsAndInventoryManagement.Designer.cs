@@ -3,6 +3,7 @@ using System;
 using BatchIQ.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BatchIQ.Persistence.Migrations
 {
     [DbContext(typeof(BatchIQDbContext))]
-    partial class BatchIQDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250709190359_ProductEnhancementsAndInventoryManagement")]
+    partial class ProductEnhancementsAndInventoryManagement
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.6");
@@ -343,14 +346,10 @@ namespace BatchIQ.Persistence.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT")
-                        .HasDefaultValueSql("datetime('now')");
+                        .HasColumnType("TEXT");
 
                     b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER")
-                        .HasDefaultValue(true);
+                        .HasColumnType("INTEGER");
 
                     b.Property<bool>("IsManufactured")
                         .ValueGeneratedOnAdd()
@@ -363,7 +362,7 @@ namespace BatchIQ.Persistence.Migrations
                         .HasDefaultValue(false);
 
                     b.Property<decimal?>("MinimumStock")
-                        .HasColumnType("decimal(12,2)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("NameEn")
                         .IsRequired()
@@ -384,7 +383,7 @@ namespace BatchIQ.Persistence.Migrations
                         .HasDefaultValue(3);
 
                     b.Property<decimal?>("ReorderPoint")
-                        .HasColumnType("decimal(12,2)");
+                        .HasColumnType("TEXT");
 
                     b.Property<decimal>("SizeValue")
                         .HasColumnType("decimal(10,2)");
@@ -398,10 +397,6 @@ namespace BatchIQ.Persistence.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CreatedAt");
-
-                    b.HasIndex("IsActive");
 
                     b.HasIndex("IsManufactured");
 

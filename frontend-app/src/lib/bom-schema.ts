@@ -82,6 +82,9 @@ export type BOMItem = {
     brandFa: string;
     unitType: number;
     price: number;
+    productType?: number; // Enhanced for dual manufacturing
+    isManufactured?: boolean;
+    isProcessedProduct?: boolean;
   };
   quantityRequired: number;
   unit: number;

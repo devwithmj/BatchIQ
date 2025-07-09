@@ -3,6 +3,7 @@ using System;
 using BatchIQ.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BatchIQ.Persistence.Migrations
 {
     [DbContext(typeof(BatchIQDbContext))]
-    partial class BatchIQDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250709005502_ProcessManufacturingSupport")]
+    partial class ProcessManufacturingSupport
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.6");
@@ -342,16 +345,6 @@ namespace BatchIQ.Persistence.Migrations
                         .HasMaxLength(64)
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT")
-                        .HasDefaultValueSql("datetime('now')");
-
-                    b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER")
-                        .HasDefaultValue(true);
-
                     b.Property<bool>("IsManufactured")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER")
@@ -361,9 +354,6 @@ namespace BatchIQ.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER")
                         .HasDefaultValue(false);
-
-                    b.Property<decimal?>("MinimumStock")
-                        .HasColumnType("decimal(12,2)");
 
                     b.Property<string>("NameEn")
                         .IsRequired()
@@ -383,9 +373,6 @@ namespace BatchIQ.Persistence.Migrations
                         .HasColumnType("INTEGER")
                         .HasDefaultValue(3);
 
-                    b.Property<decimal?>("ReorderPoint")
-                        .HasColumnType("decimal(12,2)");
-
                     b.Property<decimal>("SizeValue")
                         .HasColumnType("decimal(10,2)");
 
@@ -394,14 +381,7 @@ namespace BatchIQ.Persistence.Migrations
                         .HasColumnType("INTEGER")
                         .HasDefaultValue(10);
 
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("TEXT");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("CreatedAt");
-
-                    b.HasIndex("IsActive");
 
                     b.HasIndex("IsManufactured");
 

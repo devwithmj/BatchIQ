@@ -33,7 +33,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { ProductType, SizeUnit, productTypeLabels, sizeUnitLabels } from "@/lib/bom-schema";
 import { ProductFormValues, resolver } from "@/lib/product-schema";
-import { Pencil, Plus } from "lucide-react";
+import { Pencil, Plus, Factory, Workflow } from "lucide-react";
 import { toast } from "sonner";
 import { TagsInput } from "../ui/taginput";
 
@@ -64,6 +64,7 @@ export default function ProductFormDialog({ defaultValues, children }: Props) {
       baseUnit: defaultValues?.baseUnit ?? SizeUnit.Gram,
       price: defaultValues?.price ?? 0,
       isManufactured: defaultValues?.isManufactured ?? false,
+      isProcessedProduct: defaultValues?.isProcessedProduct ?? false,
       codes: defaultValues?.codes ?? [],
     },
   });
@@ -302,26 +303,56 @@ export default function ProductFormDialog({ defaultValues, children }: Props) {
               )}
             />
 
-            {/* Is Manufactured */}
-            <FormField
-              control={form.control}
-              name="isManufactured"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel>
-                      Is Manufactured Product
-                    </FormLabel>
-                  </div>
-                </FormItem>
-              )}
-            />
+            {/* Manufacturing Type - Group both checkboxes */}
+            <div className="space-y-3">
+              <FormField
+                control={form.control}
+                name="isManufactured"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel>
+                        <Factory className="h-4 w-4 inline mr-1" />
+                        BOM Manufacturing
+                      </FormLabel>
+                      <p className="text-xs text-muted-foreground">
+                        Fixed recipe with defined components (e.g., Mixed Nuts)
+                      </p>
+                    </div>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="isProcessedProduct"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel>
+                        <Workflow className="h-4 w-4 inline mr-1" />
+                        Process Manufacturing
+                      </FormLabel>
+                      <p className="text-xs text-muted-foreground">
+                        Variable yield transformation (e.g., Roasted Pistachios)
+                      </p>
+                    </div>
+                  </FormItem>
+                )}
+              />
+            </div>
 
             {/* Barcodes */}
             <FormField
