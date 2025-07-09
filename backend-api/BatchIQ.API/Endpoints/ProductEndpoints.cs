@@ -12,12 +12,12 @@ public static class ProductEndpoints
     {
         var group = routes.MapGroup("/api/products").WithTags("Products");
 
-        group.MapGet("/", GetAllProducts);
-        group.MapGet("/{id:int}", GetProductById);
-        group.MapGet("/{id:int}/with-bom", GetProductWithBOM);
-        group.MapPost("/", CreateProduct);
-        group.MapPut("/{id:int}", UpdateProduct);
-        group.MapDelete("/{id:int}", DeleteProduct);
+        group.MapGet("/", GetAllProducts).RequireAuthorization("ProductsView");
+        group.MapGet("/{id:int}", GetProductById).RequireAuthorization("ProductsView");
+        group.MapGet("/{id:int}/with-bom", GetProductWithBOM).RequireAuthorization("ProductsView");
+        group.MapPost("/", CreateProduct).RequireAuthorization("ProductsCreate");
+        group.MapPut("/{id:int}", UpdateProduct).RequireAuthorization("ProductsEdit");
+        group.MapDelete("/{id:int}", DeleteProduct).RequireAuthorization("ProductsDelete");
     }
 
     private static async Task<IResult> GetAllProducts(BatchIQDbContext db, ProductType? productType = null, bool? isManufactured = null)

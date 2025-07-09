@@ -11,11 +11,11 @@ public static class TransactionEndpoints
     {
         var group = routes.MapGroup("/api/transactions").WithTags("Transactions");
 
-        group.MapGet("/", GetAllTransactions);
-        group.MapGet("/{id:int}", GetTransactionById);
-        group.MapPost("/", CreateTransaction);
-        group.MapPut("/{id:int}", UpdateTransaction);
-        group.MapDelete("/{id:int}", DeleteTransaction);
+        group.MapGet("/", GetAllTransactions).RequireAuthorization("InventoryView");
+        group.MapGet("/{id:int}", GetTransactionById).RequireAuthorization("InventoryView");
+        group.MapPost("/", CreateTransaction).RequireAuthorization("InventoryCreate");
+        group.MapPut("/{id:int}", UpdateTransaction).RequireAuthorization("InventoryEdit");
+        group.MapDelete("/{id:int}", DeleteTransaction).RequireAuthorization("InventoryDelete");
     }
 
     private static async Task<IResult> GetAllTransactions(BatchIQDbContext db)

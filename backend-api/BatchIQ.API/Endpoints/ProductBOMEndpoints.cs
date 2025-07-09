@@ -12,31 +12,31 @@ public static class ProductBOMEndpoints
         var group = routes.MapGroup("/api/product-bom").WithTags("Product BOM");
 
         // Get all BOM entries
-        group.MapGet("/", GetAllBOMs);
+        group.MapGet("/", GetAllBOMs).RequireAuthorization("BOMView");
         
         // Get BOM by parent product
-        group.MapGet("/product/{productId:int}", GetBOMByProduct);
+        group.MapGet("/product/{productId:int}", GetBOMByProduct).RequireAuthorization("BOMView");
         
         // Get specific BOM entry
-        group.MapGet("/{id:int}", GetBOMById);
+        group.MapGet("/{id:int}", GetBOMById).RequireAuthorization("BOMView");
         
         // Create new BOM entry
-        group.MapPost("/", CreateBOM);
+        group.MapPost("/", CreateBOM).RequireAuthorization("BOMCreate");
         
         // Update BOM entry
-        group.MapPut("/{id:int}", UpdateBOM);
+        group.MapPut("/{id:int}", UpdateBOM).RequireAuthorization("BOMEdit");
         
         // Delete BOM entry
-        group.MapDelete("/{id:int}", DeleteBOM);
+        group.MapDelete("/{id:int}", DeleteBOM).RequireAuthorization("BOMDelete");
         
         // Get products that can be manufactured (have BOMs)
-        group.MapGet("/manufactured-products", GetManufacturedProducts);
+        group.MapGet("/manufactured-products", GetManufacturedProducts).RequireAuthorization("BOMView");
         
         // Get available components for a product
-        group.MapGet("/available-components/{productId:int}", GetAvailableComponents);
+        group.MapGet("/available-components/{productId:int}", GetAvailableComponents).RequireAuthorization("BOMView");
         
         // Calculate material cost for a product
-        group.MapGet("/material-cost/{productId:int}", GetMaterialCost);
+        group.MapGet("/material-cost/{productId:int}", GetMaterialCost).RequireAuthorization("BOMView");
     }
 
     private static async Task<IResult> GetAllBOMs(BatchIQDbContext db, int? parentProductId = null)

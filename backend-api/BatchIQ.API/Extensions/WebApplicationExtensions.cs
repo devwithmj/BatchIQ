@@ -16,11 +16,17 @@ public static class WebApplicationExtensions
         app.UseHttpsRedirection();
         app.UseCors();
 
+        // Authentication & Authorization middleware
+        app.UseAuthentication();
+        app.UseAuthorization();
+
         return app;
     }
 
     public static WebApplication MapEndpoints(this WebApplication app)
     {
+        app.MapAuthEndpoints();
+        app.MapUserEndpoints();
         app.MapProductEndpoints();
         app.MapProductBOMEndpoints();
         app.MapLocationEndpoints();

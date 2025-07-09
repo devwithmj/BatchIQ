@@ -11,11 +11,11 @@ public static class LocationEndpoints
     {
         var group = routes.MapGroup("/api/locations").WithTags("Locations");
 
-        group.MapGet("/", GetAllLocations);
-        group.MapGet("/{id:int}", GetLocationById);
-        group.MapPost("/", CreateLocation);
-        group.MapPut("/{id:int}", UpdateLocation);
-        group.MapDelete("/{id:int}", DeleteLocation);
+        group.MapGet("/", GetAllLocations).RequireAuthorization("LocationView");
+        group.MapGet("/{id:int}", GetLocationById).RequireAuthorization("LocationView");
+        group.MapPost("/", CreateLocation).RequireAuthorization("LocationCreate");
+        group.MapPut("/{id:int}", UpdateLocation).RequireAuthorization("LocationEdit");
+        group.MapDelete("/{id:int}", DeleteLocation).RequireAuthorization("LocationDelete");
     }
 
     private static async Task<IResult> GetAllLocations(BatchIQDbContext db)
