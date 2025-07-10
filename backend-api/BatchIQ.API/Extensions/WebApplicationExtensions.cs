@@ -14,7 +14,16 @@ public static class WebApplicationExtensions
         }
 
         app.UseHttpsRedirection();
-        app.UseCors();
+        
+        // Use permissive CORS in development, restricted in production
+        if (app.Environment.IsDevelopment())
+        {
+            app.UseCors("Development");
+        }
+        else
+        {
+            app.UseCors();
+        }
 
         // Authentication & Authorization middleware
         app.UseAuthentication();
