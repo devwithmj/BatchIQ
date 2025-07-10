@@ -28,8 +28,6 @@ import { Button } from "@/components/ui/button";
 
 import { useForm } from "react-hook-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 
 import { api } from "@/lib/api";
 import { 
@@ -41,26 +39,16 @@ import { Product } from "@/lib/product-schema";
 import { Pencil, Plus } from "lucide-react";
 import { toast } from "sonner";
 
-// Simplified schemas for this component
-const createBOMSchema = z.object({
-  parentProductId: z.number(),
-  componentProductId: z.number(),
-  quantityRequired: z.coerce.number().positive(),
-  unit: z.number(),
-  costPerUnit: z.coerce.number().positive().optional(),
-  isCritical: z.boolean().default(false),
-  notes: z.string().optional(),
-  sequence: z.coerce.number().int().optional(),
-});
-
-const updateBOMSchema = z.object({
-  quantityRequired: z.coerce.number().positive(),
-  unit: z.number(),
-  costPerUnit: z.coerce.number().positive().optional(),
-  isCritical: z.boolean().default(false),
-  notes: z.string().optional(),
-  sequence: z.coerce.number().int().optional(),
-});
+type BOMFormData = {
+  parentProductId?: number;
+  componentProductId?: number;
+  quantityRequired: number;
+  unit: number;
+  costPerUnit?: number;
+  isCritical: boolean;
+  notes?: string;
+  sequence?: number;
+};
 
 type Props = {
   parentProductId: number;
@@ -80,7 +68,7 @@ export default function BOMFormDialog({ parentProductId, defaultValues, children
     enabled: !isEdit, // Only needed for new components
   });
 
-  const form = useForm<any>({
+  const form = useForm<BOMFormData>({
     defaultValues: isEdit ? {
       quantityRequired: defaultValues.quantityRequired,
       unit: defaultValues.unit,
@@ -101,7 +89,7 @@ export default function BOMFormDialog({ parentProductId, defaultValues, children
   });
 
   const mutation = useMutation({
-    mutationFn: async (data: any) => {
+    mutationFn: async (data: Record<string, unknown>) => {
       if (isEdit) {
         await api.put(`/api/product-bom/${defaultValues!.id}`, data);
       } else {

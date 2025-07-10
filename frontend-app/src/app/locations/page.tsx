@@ -111,8 +111,8 @@ export default function LocationsPage() {
     }
   };
 
-  const renderLocationNode = (location: Location & { children: (Location & { children: any[] })[] }, level = 0) => {
-    const hasChildren = location.children.length > 0;
+  const renderLocationNode = (location: Location, level = 0) => {
+    const hasChildren = location.children && location.children.length > 0;
     const isExpanded = expandedNodes.has(location.id);
     
     return (
@@ -148,7 +148,7 @@ export default function LocationsPage() {
               </div>
               {hasChildren && (
                 <span className="text-xs text-muted-foreground">
-                  {location.children.length} child location{location.children.length !== 1 ? 's' : ''}
+                  {location.children?.length || 0} child location{(location.children?.length || 0) !== 1 ? 's' : ''}
                 </span>
               )}
             </div>
@@ -181,7 +181,7 @@ export default function LocationsPage() {
         
         {hasChildren && isExpanded && (
           <div>
-            {location.children.map(child => renderLocationNode(child as any, level + 1))}
+            {location.children?.map(child => renderLocationNode(child, level + 1))}
           </div>
         )}
       </div>

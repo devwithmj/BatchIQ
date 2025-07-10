@@ -22,7 +22,7 @@ export function NumberField<T extends FieldValues>({
     <Controller
       control={control}
       name={name}
-      defaultValue={0 as any} 
+      defaultValue={undefined} 
       render={({ field, fieldState }) => (
         <div className="grid gap-1">
           <label className="text-sm font-medium">{label}</label>

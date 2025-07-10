@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Plus, Pencil } from "lucide-react";
+import { Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -78,7 +78,7 @@ export default function LocationFormDialog({ defaultValues, children }: Props) {
       form.reset();
       toast(isEdit ? "Location Updated ✅" : "Location Created ✅");
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       console.error("Location save error:", error);
       toast("Save Failed ❌");
     },

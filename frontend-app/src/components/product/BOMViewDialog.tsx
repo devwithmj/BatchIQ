@@ -182,7 +182,7 @@ export default function BOMViewDialog({
             </div>
           ) : safeBomItems.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
-              No components added yet. Click "Add Component" to get started.
+              No components added yet. Click &quot;Add Component&quot; to get started.
             </div>
           ) : (
             <div className="overflow-x-auto">
