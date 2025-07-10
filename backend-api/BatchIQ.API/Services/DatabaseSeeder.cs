@@ -53,6 +53,9 @@ public class DatabaseSeeder : IDatabaseSeeder
                 // Save permissions and roles first
                 await _context.SaveChangesAsync();
                 
+                // Seed Role Permissions (after roles and permissions are saved)
+                await SeedRolePermissionsAsync();
+                
                 // Seed Admin User
                 await SeedAdminUserAsync();
                 
@@ -184,9 +187,6 @@ public class DatabaseSeeder : IDatabaseSeeder
         {
             await _context.Roles.AddRangeAsync(roles);
             _logger.LogInformation($"Seeded {roles.Count} roles.");
-
-            // Now seed role permissions
-            await SeedRolePermissionsAsync();
         }
     }
 
