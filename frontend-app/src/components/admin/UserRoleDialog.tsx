@@ -7,7 +7,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { User, Role } from "@/lib/auth-schema";
-import { userApi, roleApi } from "@/lib/auth-api";
+import { userApi } from "@/lib/auth-api";
 import { toast } from "sonner";
 
 interface UserRoleDialogProps {
@@ -31,8 +31,21 @@ export function UserRoleDialog({ open, onOpenChange, user, onSuccess }: UserRole
 
   const fetchRoles = async () => {
     try {
-      const fetchedRoles = await roleApi.getRoles();
-      setRoles(fetchedRoles.filter(r => r.isActive));
+      // Get all users to extract available roles
+      const allUsers = await userApi.getUsers();
+      const uniqueRoles: Role[] = [];
+      const roleMap = new Map<number, Role>();
+      
+      allUsers.forEach(user => {
+        user.roles?.forEach(role => {
+          if (!roleMap.has(role.id)) {
+            roleMap.set(role.id, role);
+            uniqueRoles.push(role);
+          }
+        });
+      });
+      
+      setRoles(uniqueRoles.filter(role => role.isActive));
     } catch (err) {
       console.error('Failed to fetch roles:', err);
       toast.error("Failed to fetch roles");

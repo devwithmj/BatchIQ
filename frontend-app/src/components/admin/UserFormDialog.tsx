@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { CreateUserDto, UpdateUserDto, User, createUserResolver, updateUserResolver } from "@/lib/auth-schema";
-import { userApi, roleApi } from "@/lib/auth-api";
+import { userApi } from "@/lib/auth-api";
 import { toast } from "sonner";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Role } from "@/lib/auth-schema";
@@ -51,8 +51,21 @@ function CreateUserForm({ onSuccess, onCancel }: { onSuccess: () => void; onCanc
 
   const fetchRoles = async () => {
     try {
-      const fetchedRoles = await roleApi.getRoles();
-      setRoles(fetchedRoles.filter(r => r.isActive));
+      // Get all users to extract available roles
+      const allUsers = await userApi.getUsers();
+      const uniqueRoles: Role[] = [];
+      const roleMap = new Map<number, Role>();
+      
+      allUsers.forEach(user => {
+        user.roles?.forEach(role => {
+          if (!roleMap.has(role.id)) {
+            roleMap.set(role.id, role);
+            uniqueRoles.push(role);
+          }
+        });
+      });
+      
+      setRoles(uniqueRoles.filter(role => role.isActive));
     } catch (err) {
       console.error('Failed to fetch roles:', err);
       toast.error("Failed to fetch roles");
@@ -236,8 +249,21 @@ function EditUserForm({ user, onSuccess, onCancel }: { user: User; onSuccess: ()
 
   const fetchRoles = async () => {
     try {
-      const fetchedRoles = await roleApi.getRoles();
-      setRoles(fetchedRoles.filter(r => r.isActive));
+      // Get all users to extract available roles
+      const allUsers = await userApi.getUsers();
+      const uniqueRoles: Role[] = [];
+      const roleMap = new Map<number, Role>();
+      
+      allUsers.forEach(user => {
+        user.roles?.forEach(role => {
+          if (!roleMap.has(role.id)) {
+            roleMap.set(role.id, role);
+            uniqueRoles.push(role);
+          }
+        });
+      });
+      
+      setRoles(uniqueRoles.filter(role => role.isActive));
     } catch (err) {
       console.error('Failed to fetch roles:', err);
       toast.error("Failed to fetch roles");
