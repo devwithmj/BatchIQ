@@ -3,31 +3,39 @@ import { NextRequest, NextResponse } from 'next/server';
 // Get backend URL from environment or default to localhost:5000
 const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:5000';
 
+interface RouteParams {
+  params: Promise<{ path: string[] }>;
+}
+
 export async function GET(
   request: NextRequest,
-  { params }: { params: { path: string[] } }
+  context: RouteParams
 ) {
+  const params = await context.params;
   return proxyRequest(request, params.path, 'GET');
 }
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { path: string[] } }
+  context: RouteParams
 ) {
+  const params = await context.params;
   return proxyRequest(request, params.path, 'POST');
 }
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { path: string[] } }
+  context: RouteParams
 ) {
+  const params = await context.params;
   return proxyRequest(request, params.path, 'PUT');
 }
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { path: string[] } }
+  context: RouteParams
 ) {
+  const params = await context.params;
   return proxyRequest(request, params.path, 'DELETE');
 }
 

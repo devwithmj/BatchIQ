@@ -10,6 +10,7 @@ import {
   Permission,
   RefreshTokenDto
 } from "./auth-schema";
+import { ApiErrorHandler } from "./error-handler";
 
 // Use proxy for development, direct API for production
 const API_BASE = process.env.NODE_ENV === 'development' 
@@ -93,20 +94,33 @@ class ApiClient {
           
           const retryResponse = await fetch(`${API_BASE}${endpoint}`, retryConfig);
           if (!retryResponse.ok) {
+            if (retryResponse.status === 401) {
+              // Still unauthorized after refresh, redirect to login
+              TokenManager.clearTokens();
+              ApiErrorHandler.handleError(new Error("Session expired"));
+              throw new Error("Session expired");
+            }
+            if (retryResponse.status === 403) {
+              throw new Error("You don't have permission to access this resource");
+            }
             throw new Error(`HTTP error! status: ${retryResponse.status}`);
           }
           return retryResponse.json();
         } catch {
           // Refresh failed, clear tokens and redirect to login
           TokenManager.clearTokens();
-          window.location.href = "/login";
+          ApiErrorHandler.handleError(new Error("Session expired"));
           throw new Error("Session expired");
         }
       } else {
         TokenManager.clearTokens();
-        window.location.href = "/login";
+        ApiErrorHandler.handleError(new Error("Authentication required"));
         throw new Error("Authentication required");
       }
+    }
+
+    if (response.status === 403) {
+      throw new Error("You don't have permission to access this resource");
     }
 
     if (!response.ok) {

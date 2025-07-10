@@ -1,8 +1,10 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { useRouter } from "next/navigation";
 import { User, Role } from "@/lib/auth-schema";
 import { authApi } from "@/lib/auth-api";
+import { ApiErrorHandler } from "@/lib/error-handler";
 
 interface AuthContextType {
   user: User | null;
@@ -30,8 +32,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [roles, setRoles] = useState<Role[]>([]);
   const [permissions, setPermissions] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
 
   const isAuthenticated = !!user;
+
+  // Set router in error handler
+  useEffect(() => {
+    ApiErrorHandler.setRouter(router);
+  }, [router]);
 
   // Initialize auth state on mount
   useEffect(() => {
@@ -67,10 +75,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const response = await authApi.login({ username, password });
       setUser(response.user);
       setRoles(response.user.roles || []);
-      setPermissions(response.permissions);
-    } catch (error) {
-      throw error; // Re-throw to allow components to handle
-    }
+      setPermissions(response.permissions);        } catch (error) {
+          ApiErrorHandler.handleError(error, "Login failed");
+          throw error; // Re-throw to allow components to handle
+        }
   };
 
   const logout = async () => {
