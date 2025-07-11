@@ -84,8 +84,13 @@ public static class TransactionEndpoints
             FromLocationId = dto.FromLocationId,
             ToLocationId = dto.ToLocationId,
             Quantity = dto.Quantity,
+            Unit = dto.Unit,
+            BaseQuantity = dto.Quantity, // For now, using same value. TODO: Add unit conversion logic
             TransactionType = dto.TransactionType,
-            ExpiryDate = dto.ExpiryDate
+            ExpiryDate = dto.ExpiryDate,
+            BatchNumber = dto.BatchNumber,
+            Notes = dto.Notes,
+            UnitCost = dto.UnitCost
         };
 
         db.InventoryTransactions.Add(transaction);
@@ -136,8 +141,13 @@ public static class TransactionEndpoints
         transaction.FromLocationId = dto.FromLocationId;
         transaction.ToLocationId = dto.ToLocationId;
         transaction.Quantity = dto.Quantity;
+        transaction.Unit = dto.Unit;
+        transaction.BaseQuantity = dto.Quantity; // For now, using same value. TODO: Add unit conversion logic
         transaction.TransactionType = dto.TransactionType;
         transaction.ExpiryDate = dto.ExpiryDate;
+        transaction.BatchNumber = dto.BatchNumber;
+        transaction.Notes = dto.Notes;
+        transaction.UnitCost = dto.UnitCost;
 
         db.InventoryTransactions.Update(transaction);
         await db.SaveChangesAsync();

@@ -26,7 +26,6 @@ public class RoleConfiguration : IEntityTypeConfiguration<Role>
          .HasDefaultValue(true);
 
         e.Property(r => r.CreatedAt)
-         .HasDefaultValueSql("datetime('now')")
          .IsRequired();
 
         // Relationships

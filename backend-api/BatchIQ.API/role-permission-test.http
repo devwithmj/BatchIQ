@@ -1,0 +1,92 @@
+### Test Role and Permission Management Endpoints
+
+# Note: These endpoints require authentication and proper authorization
+# The responses will be 401 Unauthorized without proper authentication
+
+### Get All Roles
+GET http://localhost:5000/api/roles
+Accept: application/json
+
+###
+
+### Get Role by ID
+GET http://localhost:5000/api/roles/1
+Accept: application/json
+
+###
+
+### Get All Permissions
+GET http://localhost:5000/api/permissions
+Accept: application/json
+
+###
+
+### Get Permission Categories
+GET http://localhost:5000/api/permissions/categories
+Accept: application/json
+
+###
+
+### Get Permission by ID
+GET http://localhost:5000/api/permissions/1
+Accept: application/json
+
+###
+
+### Get Permissions by Role
+GET http://localhost:5000/api/permissions/roles/1
+Accept: application/json
+
+###
+
+### Update Permission
+PUT http://localhost:5000/api/permissions/1
+Content-Type: application/json
+
+{
+  "name": "ProductsViewUpdated",
+  "description": "Updated description for viewing products",
+  "descriptionFa": "توضیحات به روز شده برای مشاهده محصولات",
+  "category": "Products",
+  "isActive": true
+}
+
+###
+
+### Create New Permission
+POST http://localhost:5000/api/permissions
+Content-Type: application/json
+
+{
+  "name": "CustomPermissionTest",
+  "description": "A new custom permission for testing validation",
+  "descriptionFa": "مجوز سفارشی جدید برای تست اعتبارسنجی",
+  "category": "Testing"
+}
+
+###
+
+### Create Permission with Missing Category (Should fail validation)
+POST http://localhost:5000/api/permissions
+Content-Type: application/json
+
+{
+  "name": "TestPermissionNoCategory",
+  "description": "This should fail due to missing category",
+  "descriptionFa": "این باید به دلیل عدم وجود دسته‌بندی ناکام باشد"
+}
+
+###
+
+### Create Permission with Empty Name (Should fail validation)
+POST http://localhost:5000/api/permissions
+Content-Type: application/json
+
+{
+  "name": "",
+  "description": "This should fail due to empty name",
+  "descriptionFa": "این باید به دلیل نام خالی ناکام باشد",
+  "category": "Testing"
+}
+
+###

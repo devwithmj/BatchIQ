@@ -8,7 +8,7 @@ GET {{baseUrl}}/transactions
 ### Get specific transaction by ID
 GET {{baseUrl}}/transactions/1
 
-### Create a new transaction (Stock In)
+### Create a new transaction (Stock In) with notes and batch info
 POST {{baseUrl}}/transactions
 Content-Type: application/json
 
@@ -17,11 +17,15 @@ Content-Type: application/json
   "fromLocationId": null,
   "toLocationId": 1,
   "quantity": 100,
+  "unit": 1,
   "transactionType": 1,
-  "expiryDate": "2025-12-31T00:00:00"
+  "expiryDate": "2025-12-31T00:00:00",
+  "batchNumber": "BATCH-2025-001",
+  "notes": "Initial stock received from supplier ABC",
+  "unitCost": 15.50
 }
 
-### Create a transfer transaction
+### Create a transfer transaction with notes
 POST {{baseUrl}}/transactions
 Content-Type: application/json
 
@@ -30,11 +34,15 @@ Content-Type: application/json
   "fromLocationId": 1,
   "toLocationId": 2,
   "quantity": 50,
+  "unit": 1,
   "transactionType": 3,
-  "expiryDate": "2025-12-31T00:00:00"
+  "expiryDate": "2025-12-31T00:00:00",
+  "batchNumber": "BATCH-2025-001",
+  "notes": "Transfer to main warehouse for distribution",
+  "unitCost": null
 }
 
-### Create a stock out transaction (Sale)
+### Create a stock out transaction (Sale) with sale notes
 POST {{baseUrl}}/transactions
 Content-Type: application/json
 
@@ -43,11 +51,15 @@ Content-Type: application/json
   "fromLocationId": 1,
   "toLocationId": null,
   "quantity": 25,
+  "unit": 1,
   "transactionType": 2,
-  "expiryDate": null
+  "expiryDate": null,
+  "batchNumber": "BATCH-2025-001",
+  "notes": "Sold to customer XYZ - Order #12345",
+  "unitCost": null
 }
 
-### Update a transaction
+### Update a transaction with notes
 PUT {{baseUrl}}/transactions/1
 Content-Type: application/json
 
@@ -56,8 +68,12 @@ Content-Type: application/json
   "fromLocationId": 1,
   "toLocationId": 2,
   "quantity": 75,
+  "unit": 1,
   "transactionType": 3,
-  "expiryDate": "2025-11-30T00:00:00"
+  "expiryDate": "2025-11-30T00:00:00",
+  "batchNumber": "BATCH-2025-001-UPDATED",
+  "notes": "Updated: Transfer quantity adjusted due to quality check",
+  "unitCost": 16.00
 }
 
 ### Delete a transaction
@@ -72,6 +88,7 @@ Content-Type: application/json
   "fromLocationId": 1,
   "toLocationId": 2,
   "quantity": 10,
+  "unit": 1,
   "transactionType": 3,
   "expiryDate": null
 }
@@ -85,6 +102,7 @@ Content-Type: application/json
   "fromLocationId": 999,
   "toLocationId": 1,
   "quantity": 10,
+  "unit": 1,
   "transactionType": 3,
   "expiryDate": null
 }
@@ -98,6 +116,7 @@ Content-Type: application/json
   "fromLocationId": 1,
   "toLocationId": 2,
   "quantity": -10,
+  "unit": 1,
   "transactionType": 3,
   "expiryDate": null
 }

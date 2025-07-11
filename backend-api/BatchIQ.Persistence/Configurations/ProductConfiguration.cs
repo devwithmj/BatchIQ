@@ -55,7 +55,6 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
          .HasDefaultValue(true);
 
         e.Property(p => p.CreatedAt)
-         .HasDefaultValueSql("datetime('now')")
          .IsRequired();
 
         e.Property(p => p.UpdatedAt)

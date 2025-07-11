@@ -1,0 +1,76 @@
+### Test Report Endpoints
+
+# Note: These endpoints require authentication and proper authorization (ReportsView permission)
+# The responses will be 401 Unauthorized without proper authentication
+
+### Get Stock Availability Report (All Products)
+GET http://localhost:5000/api/reports/stock-availability
+Accept: application/json
+
+###
+
+### Get Stock Availability Report (Low Stock Only)
+GET http://localhost:5000/api/reports/stock-availability?lowStockOnly=true
+Accept: application/json
+
+###
+
+### Get Stock Availability Report (Needs Reorder Only)
+GET http://localhost:5000/api/reports/stock-availability?needsReorderOnly=true
+Accept: application/json
+
+###
+
+### Get Stock Availability for Specific Product
+GET http://localhost:5000/api/reports/stock-availability/1
+Accept: application/json
+
+###
+
+### Get Product Transaction Report
+GET http://localhost:5000/api/reports/product-transactions/1
+Accept: application/json
+
+###
+
+### Get Product Transaction Report with Date Filter
+GET http://localhost:5000/api/reports/product-transactions/1?fromDate=2025-07-01&toDate=2025-07-11
+Accept: application/json
+
+###
+
+### Get Product Transaction Report by Transaction Type (Receive)
+GET http://localhost:5000/api/reports/product-transactions/1?transactionType=Receive
+Accept: application/json
+
+###
+
+### Get Product Transaction Report by Transaction Type (Issue)
+GET http://localhost:5000/api/reports/product-transactions/1?transactionType=Issue
+Accept: application/json
+
+###
+
+### Get Product Transaction Report by Transaction Type (Transfer)
+GET http://localhost:5000/api/reports/product-transactions/1?transactionType=Transfer
+Accept: application/json
+
+###
+
+### Get Product Transaction Report by Location
+GET http://localhost:5000/api/reports/product-transactions/1?locationId=1
+Accept: application/json
+
+###
+
+### Get Product Transaction Summary
+GET http://localhost:5000/api/reports/product-transactions/summary/1
+Accept: application/json
+
+###
+
+### Get Product Transaction Summary with Date Range
+GET http://localhost:5000/api/reports/product-transactions/summary/1?fromDate=2025-07-01&toDate=2025-07-11
+Accept: application/json
+
+###

@@ -30,7 +30,6 @@ public class PermissionConfiguration : IEntityTypeConfiguration<Permission>
          .HasDefaultValue(true);
 
         e.Property(p => p.CreatedAt)
-         .HasDefaultValueSql("datetime('now')")
          .IsRequired();
 
         // Relationships

@@ -161,9 +161,14 @@ public static class ResponseModels
             toLocationId = transaction.ToLocationId,
             toLocationName = transaction.ToLocation?.Name,
             quantity = transaction.Quantity,
+            unit = transaction.Unit,
+            baseQuantity = transaction.BaseQuantity,
             transactionType = transaction.TransactionType,
+            timestamp = transaction.Timestamp,
             expiryDate = transaction.ExpiryDate,
-            createdAt = transaction.Id // You may want to add a CreatedAt property to the entity
+            batchNumber = transaction.BatchNumber,
+            notes = transaction.Notes,
+            unitCost = transaction.UnitCost
         };
     }
 
@@ -179,7 +184,8 @@ public static class ResponseModels
                 nameEn = transaction.Product.NameEn,
                 nameFa = transaction.Product.NameFa,
                 brandEn = transaction.Product.BrandEn,
-                brandFa = transaction.Product.BrandFa
+                brandFa = transaction.Product.BrandFa,
+                baseUnit = transaction.Product.BaseUnit
             } : null,
             fromLocationId = transaction.FromLocationId,
             fromLocation = transaction.FromLocation != null ? new
@@ -196,8 +202,15 @@ public static class ResponseModels
                 locationType = transaction.ToLocation.LocationType
             } : null,
             quantity = transaction.Quantity,
+            unit = transaction.Unit,
+            baseQuantity = transaction.BaseQuantity,
             transactionType = transaction.TransactionType,
-            expiryDate = transaction.ExpiryDate
+            timestamp = transaction.Timestamp,
+            expiryDate = transaction.ExpiryDate,
+            batchNumber = transaction.BatchNumber,
+            notes = transaction.Notes,
+            unitCost = transaction.UnitCost,
+            productionTransactionId = transaction.ProductionTransactionId
         };
     }
 
@@ -210,8 +223,13 @@ public static class ResponseModels
             fromLocationId = transaction.FromLocationId,
             toLocationId = transaction.ToLocationId,
             quantity = transaction.Quantity,
+            unit = transaction.Unit,
             transactionType = transaction.TransactionType,
-            expiryDate = transaction.ExpiryDate
+            timestamp = transaction.Timestamp,
+            expiryDate = transaction.ExpiryDate,
+            batchNumber = transaction.BatchNumber,
+            notes = transaction.Notes,
+            unitCost = transaction.UnitCost
         };
     }
 

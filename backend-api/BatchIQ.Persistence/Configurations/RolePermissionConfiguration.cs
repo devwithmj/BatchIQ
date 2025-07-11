@@ -13,7 +13,6 @@ public class RolePermissionConfiguration : IEntityTypeConfiguration<RolePermissi
 
         // Properties
         e.Property(rp => rp.GrantedAt)
-         .HasDefaultValueSql("datetime('now')")
          .IsRequired();
 
         // Relationships

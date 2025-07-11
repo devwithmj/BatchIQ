@@ -42,7 +42,6 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
          .HasDefaultValue(false);
 
         e.Property(u => u.CreatedAt)
-         .HasDefaultValueSql("datetime('now')")
          .IsRequired();
 
         e.Property(u => u.UpdatedAt)

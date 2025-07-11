@@ -13,7 +13,6 @@ public class UserRoleConfiguration : IEntityTypeConfiguration<UserRole>
 
         // Properties
         e.Property(ur => ur.AssignedAt)
-         .HasDefaultValueSql("datetime('now')")
          .IsRequired();
 
         // Relationships

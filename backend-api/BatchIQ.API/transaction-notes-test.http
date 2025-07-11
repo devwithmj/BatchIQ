@@ -1,0 +1,94 @@
+### Transaction Notes/Description Testing
+
+@baseUrl = https://localhost:7071/api
+
+### Create a transaction with detailed notes and batch information
+POST {{baseUrl}}/transactions
+Content-Type: application/json
+
+{
+  "productId": 1,
+  "fromLocationId": null,
+  "toLocationId": 1,
+  "quantity": 200,
+  "unit": 1,
+  "transactionType": 1,
+  "expiryDate": "2026-01-15T00:00:00",
+  "batchNumber": "BATCH-2025-JAN-001",
+  "notes": "Initial inventory received from supplier ABC. Quality inspection passed. Temperature controlled transport. Store in cool, dry place. Lot reference: ABC-2025-001.",
+  "unitCost": 12.75
+}
+
+### Create a transfer with detailed transfer notes
+POST {{baseUrl}}/transactions
+Content-Type: application/json
+
+{
+  "productId": 1,
+  "fromLocationId": 1,
+  "toLocationId": 2,
+  "quantity": 50,
+  "unit": 1,
+  "transactionType": 3,
+  "expiryDate": "2026-01-15T00:00:00",
+  "batchNumber": "BATCH-2025-JAN-001",
+  "notes": "Transfer from warehouse to retail store. Requested by store manager John Doe. Transfer approved by warehouse supervisor. Use FIFO method.",
+  "unitCost": null
+}
+
+### Create a sale transaction with customer and order details
+POST {{baseUrl}}/transactions
+Content-Type: application/json
+
+{
+  "productId": 1,
+  "fromLocationId": 2,
+  "toLocationId": null,
+  "quantity": 10,
+  "unit": 1,
+  "transactionType": 2,
+  "expiryDate": null,
+  "batchNumber": "BATCH-2025-JAN-001",
+  "notes": "Sold to customer Jane Smith. Order #ORD-2025-12345. Payment method: Credit Card. Delivery address: 123 Main St, City. Customer phone: +1234567890.",
+  "unitCost": null
+}
+
+### Create an adjustment transaction with reason
+POST {{baseUrl}}/transactions
+Content-Type: application/json
+
+{
+  "productId": 1,
+  "fromLocationId": 1,
+  "toLocationId": null,
+  "quantity": 5,
+  "unit": 1,
+  "transactionType": 4,
+  "expiryDate": null,
+  "batchNumber": "BATCH-2025-JAN-001",
+  "notes": "Inventory adjustment due to damaged goods. 5 units found damaged during routine inspection. Reason: Package torn during handling. Disposed according to company policy.",
+  "unitCost": null
+}
+
+### Update a transaction with additional notes
+PUT {{baseUrl}}/transactions/1
+Content-Type: application/json
+
+{
+  "productId": 1,
+  "fromLocationId": 1,
+  "toLocationId": 2,
+  "quantity": 75,
+  "unit": 1,
+  "transactionType": 3,
+  "expiryDate": "2025-11-30T00:00:00",
+  "batchNumber": "BATCH-2025-JAN-001-UPDATED",
+  "notes": "Updated transaction. Original transfer was 50 units, now adjusted to 75 units based on revised demand forecast. Updated by: System Administrator. Reason: Increased store demand.",
+  "unitCost": 13.25
+}
+
+### Get transaction to verify notes are saved and returned properly
+GET {{baseUrl}}/transactions/1
+
+### Get all transactions to see notes in list view
+GET {{baseUrl}}/transactions

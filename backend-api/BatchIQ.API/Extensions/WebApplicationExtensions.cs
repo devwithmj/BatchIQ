@@ -36,10 +36,13 @@ public static class WebApplicationExtensions
     {
         app.MapAuthEndpoints();
         app.MapUserEndpoints();
+        app.MapRoleEndpoints();
+        app.MapPermissionEndpoints();
         app.MapProductEndpoints();
         app.MapProductBOMEndpoints();
         app.MapLocationEndpoints();
         app.MapTransactionEndpoints();
+        app.MapReportEndpoints();
 
         return app;
     }
