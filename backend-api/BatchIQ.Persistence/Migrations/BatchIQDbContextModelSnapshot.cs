@@ -230,7 +230,7 @@ namespace BatchIQ.Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT")
-                        .HasDefaultValueSql("datetime('now')");
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<string>("Description")
                         .HasMaxLength(200)
@@ -391,7 +391,7 @@ namespace BatchIQ.Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT")
-                        .HasDefaultValueSql("datetime('now')");
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
@@ -691,7 +691,7 @@ namespace BatchIQ.Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT")
-                        .HasDefaultValueSql("datetime('now')");
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<string>("Description")
                         .HasMaxLength(200)
@@ -730,7 +730,7 @@ namespace BatchIQ.Persistence.Migrations
                     b.Property<DateTime>("GrantedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT")
-                        .HasDefaultValueSql("datetime('now')");
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<int?>("GrantedByUserId")
                         .HasColumnType("INTEGER");
@@ -764,7 +764,7 @@ namespace BatchIQ.Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT")
-                        .HasDefaultValueSql("datetime('now')");
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -836,7 +836,7 @@ namespace BatchIQ.Persistence.Migrations
                     b.Property<DateTime>("AssignedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT")
-                        .HasDefaultValueSql("datetime('now')");
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<int?>("AssignedByUserId")
                         .HasColumnType("INTEGER");
@@ -847,9 +847,6 @@ namespace BatchIQ.Persistence.Migrations
                     b.Property<int>("UserId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("UsersId")
-                        .HasColumnType("INTEGER");
-
                     b.HasKey("Id");
 
                     b.HasIndex("AssignedAt");
@@ -857,8 +854,6 @@ namespace BatchIQ.Persistence.Migrations
                     b.HasIndex("AssignedByUserId");
 
                     b.HasIndex("RoleId");
-
-                    b.HasIndex("UsersId");
 
                     b.HasIndex("UserId", "RoleId")
                         .IsUnique();
@@ -1100,12 +1095,6 @@ namespace BatchIQ.Persistence.Migrations
                     b.HasOne("BatchIQ.Domain.Entities.User", "User")
                         .WithMany("UserRoles")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("BatchIQ.Domain.Entities.User", null)
-                        .WithMany()
-                        .HasForeignKey("UsersId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

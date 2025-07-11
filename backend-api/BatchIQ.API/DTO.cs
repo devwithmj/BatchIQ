@@ -105,5 +105,6 @@ internal record LocationDto(
 );
 
 internal record TransactionDto(int ProductId, int? FromLocationId, int? ToLocationId,
-                               decimal Quantity, TransactionType TransactionType,
-                               DateTime? ExpiryDate);
+                               decimal Quantity, SizeUnit Unit, TransactionType TransactionType,
+                               DateTime? ExpiryDate, string? BatchNumber, 
+                               string? Notes, decimal? UnitCost);
