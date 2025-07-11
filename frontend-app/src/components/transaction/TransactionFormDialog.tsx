@@ -54,12 +54,12 @@ export default function TransactionFormDialog({ defaultValues, children }: Props
   // Fetch products and locations for dropdowns
   const { data: products } = useQuery<Product[]>({
     queryKey: ["products"],
-    queryFn: async () => (await api.get("/api/products")).data,
+    queryFn: async () => (await api.get("/products")).data,
   });
 
   const { data: locations } = useQuery<Location[]>({
     queryKey: ["locations"],
-    queryFn: async () => (await api.get("/api/locations")).data,
+    queryFn: async () => (await api.get("/locations")).data,
   });
 
   const form = useForm<TransactionFormValues>({
@@ -86,9 +86,9 @@ export default function TransactionFormDialog({ defaultValues, children }: Props
       };
 
       if (isEdit) {
-        return await api.put(`/api/transactions/${defaultValues?.id}`, payload);
+        return await api.put(`/transactions/${defaultValues?.id}`, payload);
       } else {
-        return await api.post("/api/transactions", payload);
+        return await api.post("/transactions", payload);
       }
     },
     onSuccess: () => {

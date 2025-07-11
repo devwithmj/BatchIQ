@@ -121,6 +121,7 @@ function Sidebar({ close }: { close?: () => void }) {
             <Item href="/inventory" label="Inventory" permission={PERMISSIONS.VIEW_INVENTORY} />
             <Item href="/transactions" label="Transactions" permission={PERMISSIONS.VIEW_TRANSACTIONS} />
             <Item href="/locations" label="Locations" />
+            <Item href="/reports" label="Reports" permission={PERMISSIONS.VIEW_INVENTORY} />
             
             <Separator className="my-2" />
             
@@ -136,6 +137,7 @@ function Sidebar({ close }: { close?: () => void }) {
               </div>
               <Item href="/admin/users" label="User Management" permission={PERMISSIONS.VIEW_USERS} />
               <Item href="/admin/roles" label="Role Management" permission={PERMISSIONS.SYSTEM_ADMIN} />
+              <Item href="/admin/permissions" label="Permission Management" permission={PERMISSIONS.SYSTEM_ADMIN} />
             </PermissionGate>
           </NavigationMenuList>
         </NavigationMenu>

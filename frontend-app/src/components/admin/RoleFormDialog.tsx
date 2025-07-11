@@ -16,6 +16,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 const roleFormSchema = z.object({
   name: z.string().min(1, "Role name is required"),
   description: z.string().optional(),
+  isActive: z.boolean().optional(),
   permissionIds: z.array(z.number()).optional(),
 });
 
@@ -45,6 +46,7 @@ export function RoleFormDialog({ open, onOpenChange, role, onSuccess }: RoleForm
     defaultValues: {
       name: "",
       description: "",
+      isActive: true,
       permissionIds: [],
     },
   });
@@ -84,7 +86,10 @@ export function RoleFormDialog({ open, onOpenChange, role, onSuccess }: RoleForm
         await roleApi.updateRole(role.id, data);
         toast.success("Role updated successfully");
       } else {
-        await roleApi.createRole(data);
+        await roleApi.createRole({
+          ...data,
+          isActive: data.isActive ?? true, // Default to true if not specified
+        });
         toast.success("Role created successfully");
       }
       onSuccess();
@@ -99,7 +104,7 @@ export function RoleFormDialog({ open, onOpenChange, role, onSuccess }: RoleForm
     if (checked) {
       setValue("permissionIds", [...selectedPermissionIds, permissionId]);
     } else {
-      setValue("permissionIds", selectedPermissionIds.filter(id => id !== permissionId));
+      setValue("permissionIds", selectedPermissionIds.filter((id: number) => id !== permissionId));
     }
   };
 

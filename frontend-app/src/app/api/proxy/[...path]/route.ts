@@ -41,7 +41,11 @@ export async function DELETE(
 
 async function proxyRequest(request: NextRequest, path: string[], method: string) {
   try {
-    const url = `${BACKEND_URL}/api/${path.join('/')}`;
+    // Handle the case where path already starts with 'api' to avoid duplication
+    const pathStr = path.join('/');
+    const url = pathStr.startsWith('api/') 
+      ? `${BACKEND_URL}/${pathStr}` 
+      : `${BACKEND_URL}/api/${pathStr}`;
     const searchParams = request.nextUrl.searchParams;
     const fullUrl = searchParams.toString() ? `${url}?${searchParams}` : url;
 
@@ -68,13 +72,29 @@ async function proxyRequest(request: NextRequest, path: string[], method: string
       body,
     });
 
-    const responseData = await response.text();
+    // Handle different response types
+    let responseData: string | null = null;
+    const contentType = response.headers.get('content-type');
+    
+    // Only try to read body if there's content
+    if (response.status !== 204 && contentType) {
+      responseData = await response.text();
+    }
     
     // Forward response headers
     const responseHeaders: Record<string, string> = {};
     response.headers.forEach((value, key) => {
       responseHeaders[key] = value;
     });
+
+    // Create response based on status
+    if (response.status === 204) {
+      // For 204 No Content, return empty response
+      return new NextResponse(null, {
+        status: 204,
+        headers: responseHeaders,
+      });
+    }
 
     return new NextResponse(responseData, {
       status: response.status,

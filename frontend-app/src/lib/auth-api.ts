@@ -4,6 +4,10 @@ import {
   CreateUserDto, 
   UpdateUserDto,
   AssignRoleDto,
+  CreateRoleDto,
+  UpdateRoleDto,
+  CreatePermissionDto,
+  UpdatePermissionDto,
   LoginResponse, 
   User, 
   Role, 
@@ -105,6 +109,10 @@ class ApiClient {
             }
             throw new Error(`HTTP error! status: ${retryResponse.status}`);
           }
+          // Handle 204 No Content responses for retry
+          if (retryResponse.status === 204) {
+            return void 0 as T;
+          }
           return retryResponse.json();
         } catch {
           // Refresh failed, clear tokens and redirect to login
@@ -126,6 +134,11 @@ class ApiClient {
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+    }
+
+    // Handle 204 No Content responses (common for DELETE operations)
+    if (response.status === 204) {
+      return void 0 as T;
     }
 
     return response.json();
@@ -257,11 +270,11 @@ export const roleApi = {
     return apiClient.get<Role>(`/roles/${id}`);
   },
 
-  async createRole(data: { name: string; description?: string; permissionIds?: number[] }): Promise<Role> {
+  async createRole(data: CreateRoleDto): Promise<Role> {
     return apiClient.post<Role>("/roles", data);
   },
 
-  async updateRole(id: number, data: { name: string; description?: string; permissionIds?: number[] }): Promise<Role> {
+  async updateRole(id: number, data: UpdateRoleDto): Promise<Role> {
     return apiClient.put<Role>(`/roles/${id}`, data);
   },
 
@@ -272,16 +285,82 @@ export const roleApi = {
   async assignPermissions(roleId: number, permissionIds: number[]): Promise<void> {
     return apiClient.put(`/roles/${roleId}/permissions`, { permissionIds });
   },
+
+  async getRolePermissions(roleId: number): Promise<Permission[]> {
+    return apiClient.get<Permission[]>(`/roles/${roleId}/permissions`);
+  },
 };
 
-// Permission API
+// Permission API - Working through available endpoints until backend implements direct permission management
 export const permissionApi = {
   async getPermissions(): Promise<Permission[]> {
-    return apiClient.get<Permission[]>("/permissions");
+    try {
+      // Try direct permission endpoint first
+      return await apiClient.get<Permission[]>("/permissions");
+    } catch {
+      // If not available, extract permissions from all roles
+      console.warn("Direct permission endpoint not available, extracting from roles");
+      const roles = await roleApi.getRoles();
+      const permissionMap = new Map<number, Permission>();
+      
+      roles.forEach(role => {
+        role.permissions?.forEach(permission => {
+          if (!permissionMap.has(permission.id)) {
+            permissionMap.set(permission.id, permission);
+          }
+        });
+      });
+      
+      return Array.from(permissionMap.values());
+    }
   },
 
   async getPermissionById(id: number): Promise<Permission> {
-    return apiClient.get<Permission>(`/permissions/${id}`);
+    try {
+      // Try direct endpoint first
+      return await apiClient.get<Permission>(`/permissions/${id}`);
+    } catch {
+      // Fallback: find in roles
+      const permissions = await this.getPermissions();
+      const permission = permissions.find(p => p.id === id);
+      if (!permission) {
+        throw new Error(`Permission with id ${id} not found`);
+      }
+      return permission;
+    }
+  },
+
+  async createPermission(data: CreatePermissionDto): Promise<Permission> {
+    try {
+      return await apiClient.post<Permission>("/permissions", data);
+    } catch (error) {
+      if (error instanceof Error && error.message.includes("405")) {
+        throw new Error("Permission management endpoints are not yet implemented in the backend. Please implement POST /api/permissions endpoint.");
+      }
+      throw error;
+    }
+  },
+
+  async updatePermission(id: number, data: UpdatePermissionDto): Promise<Permission> {
+    try {
+      return await apiClient.put<Permission>(`/permissions/${id}`, data);
+    } catch (error) {
+      if (error instanceof Error && (error.message.includes("405") || error.message.includes("404"))) {
+        throw new Error("Permission management endpoints are not yet implemented in the backend. Please implement PUT /api/permissions/{id} endpoint.");
+      }
+      throw error;
+    }
+  },
+
+  async deletePermission(id: number): Promise<void> {
+    try {
+      return await apiClient.delete(`/permissions/${id}`);
+    } catch (error) {
+      if (error instanceof Error && (error.message.includes("405") || error.message.includes("404"))) {
+        throw new Error("Permission management endpoints are not yet implemented in the backend. Please implement DELETE /api/permissions/{id} endpoint.");
+      }
+      throw error;
+    }
   },
 };
 

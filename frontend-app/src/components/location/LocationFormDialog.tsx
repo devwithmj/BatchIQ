@@ -46,7 +46,7 @@ export default function LocationFormDialog({ defaultValues, children }: Props) {
   // Fetch all locations for parent selection
   const { data: locations } = useQuery<Location[]>({
     queryKey: ["locations"],
-    queryFn: async () => (await api.get("/api/locations")).data,
+    queryFn: async () => (await api.get("/locations")).data,
   });
 
   const form = useForm<LocationFormValues>({
@@ -67,9 +67,9 @@ export default function LocationFormDialog({ defaultValues, children }: Props) {
       };
 
       if (isEdit) {
-        return await api.put(`/api/locations/${defaultValues?.id}`, payload);
+        return await api.put(`/locations/${defaultValues?.id}`, payload);
       } else {
-        return await api.post("/api/locations", payload);
+        return await api.post("/locations", payload);
       }
     },
     onSuccess: () => {

@@ -37,12 +37,49 @@ export const assignRoleSchema = z.object({
   roleIds: z.array(z.number()),
 });
 
+// Role and Permission Management Schemas
+export const createRoleSchema = z.object({
+  name: z.string().min(1, "Role name is required"),
+  description: z.string().optional(),
+  descriptionFa: z.string().optional(),
+  isActive: z.boolean().default(true),
+  permissionIds: z.array(z.number()).optional(),
+});
+
+export const updateRoleSchema = z.object({
+  name: z.string().min(1, "Role name is required"),
+  description: z.string().optional(),
+  descriptionFa: z.string().optional(),
+  isActive: z.boolean().optional(),
+  permissionIds: z.array(z.number()).optional(),
+});
+
+export const createPermissionSchema = z.object({
+  name: z.string().min(1, "Permission name is required"),
+  description: z.string().optional(),
+  descriptionFa: z.string().optional(),
+  category: z.string().optional(),
+  isActive: z.boolean().default(true),
+});
+
+export const updatePermissionSchema = z.object({
+  name: z.string().min(1, "Permission name is required"),
+  description: z.string().optional(),
+  descriptionFa: z.string().optional(),
+  category: z.string().optional(),
+  isActive: z.boolean().optional(),
+});
+
 // Type definitions based on swagger schemas
 export type LoginDto = z.infer<typeof loginSchema>;
 export type ChangePasswordDto = z.infer<typeof changePasswordSchema>;
 export type CreateUserDto = z.infer<typeof createUserSchema>;
 export type UpdateUserDto = z.infer<typeof updateUserSchema>;
 export type AssignRoleDto = z.infer<typeof assignRoleSchema>;
+export type CreateRoleDto = z.infer<typeof createRoleSchema>;
+export type UpdateRoleDto = z.infer<typeof updateRoleSchema>;
+export type CreatePermissionDto = z.infer<typeof createPermissionSchema>;
+export type UpdatePermissionDto = z.infer<typeof updatePermissionSchema>;
 
 export interface Permission {
   id: number;
@@ -95,6 +132,10 @@ export const changePasswordResolver = zodResolver(changePasswordSchema);
 export const createUserResolver = zodResolver(createUserSchema);
 export const updateUserResolver = zodResolver(updateUserSchema);
 export const assignRoleResolver = zodResolver(assignRoleSchema);
+export const createRoleResolver = zodResolver(createRoleSchema);
+export const updateRoleResolver = zodResolver(updateRoleSchema);
+export const createPermissionResolver = zodResolver(createPermissionSchema);
+export const updatePermissionResolver = zodResolver(updatePermissionSchema);
 
 // Permission categories for organization
 export const PERMISSION_CATEGORIES = {

@@ -73,9 +73,9 @@ export default function ProductFormDialog({ defaultValues, children }: Props) {
   const mutation = useMutation({
     mutationFn: async (data: ProductFormValues) => {
       if (isEdit) {
-        await api.put(`/api/products/${defaultValues!.id}`, data);
+        await api.put(`/products/${defaultValues!.id}`, data);
       } else {
-        await api.post("/api/products", data);
+        await api.post("/products", data);
       }
     },
     onSuccess: () => {

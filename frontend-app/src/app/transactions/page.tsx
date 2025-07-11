@@ -31,14 +31,14 @@ export default function TransactionsPage() {
   const { data: transactions, isLoading } = useQuery<Transaction[]>({
     queryKey: ["transactions"],
     queryFn: async () => {
-      const response = await api.get("/api/transactions");
+      const response = await api.get("/transactions");
       return response.data;
     },
   });
 
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
-      await api.delete(`/api/transactions/${id}`);
+      await api.delete(`/transactions/${id}`);
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["transactions"] });

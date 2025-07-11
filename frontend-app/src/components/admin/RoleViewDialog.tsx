@@ -8,9 +8,10 @@ interface RoleViewDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   role: Role | null;
+  userCount?: number;
 }
 
-export function RoleViewDialog({ open, onOpenChange, role }: RoleViewDialogProps) {
+export function RoleViewDialog({ open, onOpenChange, role, userCount }: RoleViewDialogProps) {
   if (!role) return null;
 
   // Group permissions by category
@@ -50,6 +51,13 @@ export function RoleViewDialog({ open, onOpenChange, role }: RoleViewDialogProps
               {role.isActive ? "Active" : "Inactive"}
             </Badge>
           </div>
+
+          {userCount !== undefined && (
+            <div>
+              <h4 className="text-sm font-medium text-gray-500">Assigned Users</h4>
+              <p className="text-sm">{userCount} user{userCount !== 1 ? 's' : ''} assigned to this role</p>
+            </div>
+          )}
 
           <div>
             <h4 className="text-sm font-medium text-gray-500 mb-3">Permissions</h4>

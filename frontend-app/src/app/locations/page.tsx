@@ -21,12 +21,12 @@ export default function LocationsPage() {
 
   const { data: locations, isLoading } = useQuery<Location[]>({
     queryKey: ["locations"],
-    queryFn: async () => (await api.get("/api/locations")).data,
+    queryFn: async () => (await api.get("/locations")).data,
   });
 
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
-      await api.delete(`/api/locations/${id}`);
+      await api.delete(`/locations/${id}`);
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["locations"] });

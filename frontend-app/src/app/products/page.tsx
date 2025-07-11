@@ -12,12 +12,12 @@ import { useState, useMemo } from "react";
 import { Product } from "@/lib/product-schema";
 import BOMViewDialog from "@/components/product/BOMViewDialog";
 
-export default function InventoryPage() {
+export default function ProductsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   
   const { data, isLoading } = useQuery<Product[]>({
     queryKey: ["inventory"],
-    queryFn: async () => (await api.get("/api/products")).data,
+    queryFn: async () => (await api.get("/products")).data,
   });
 
   // Filter products based on search term
