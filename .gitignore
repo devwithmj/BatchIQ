@@ -3,4 +3,5 @@ frontend-app/package-lock.json
 backend-api/BatchIQ.API/batchiq.db-wal
 backend-api/BatchIQ.API/batchiq.db-shm
 frontend-app/swagger.json
+*appsettings.json
 backend-api/BatchIQ.API/appsettings.json
