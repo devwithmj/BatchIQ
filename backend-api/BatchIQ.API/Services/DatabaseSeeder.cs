@@ -88,11 +88,10 @@ public class DatabaseSeeder : IDatabaseSeeder
 
         foreach (var permissionEnum in permissionEnums)
         {
-            if (!await _context.Permissions.AnyAsync(p => p.Id == (int)permissionEnum))
+            if (!await _context.Permissions.AnyAsync(p => p.Name == permissionEnum.ToString()))
             {
                 var permission = new Permission
                 {
-                    Id = (int)permissionEnum,
                     Name = permissionEnum.ToString(),
                     Description = GetPermissionDescription(permissionEnum),
                     Category = GetPermissionCategory(permissionEnum),
@@ -114,11 +113,10 @@ public class DatabaseSeeder : IDatabaseSeeder
         var roles = new List<Role>();
 
         // SuperAdmin Role
-        if (!await _context.Roles.AnyAsync(r => r.Id == (int)SystemRole.SuperAdmin))
+        if (!await _context.Roles.AnyAsync(r => r.Name == SystemRole.SuperAdmin.ToString()))
         {
             var superAdminRole = new Role
             {
-                Id = (int)SystemRole.SuperAdmin,
                 Name = SystemRole.SuperAdmin.ToString(),
                 Description = "Super Administrator with full system access",
                 DescriptionFa = "مدیر ارشد با دسترسی کامل سیستم",
@@ -128,11 +126,10 @@ public class DatabaseSeeder : IDatabaseSeeder
         }
 
         // Admin Role
-        if (!await _context.Roles.AnyAsync(r => r.Id == (int)SystemRole.Admin))
+        if (!await _context.Roles.AnyAsync(r => r.Name == SystemRole.Admin.ToString()))
         {
             var adminRole = new Role
             {
-                Id = (int)SystemRole.Admin,
                 Name = SystemRole.Admin.ToString(),
                 Description = "Administrator with management access",
                 DescriptionFa = "مدیر با دسترسی مدیریتی",
@@ -142,11 +139,10 @@ public class DatabaseSeeder : IDatabaseSeeder
         }
 
         // Manager Role
-        if (!await _context.Roles.AnyAsync(r => r.Id == (int)SystemRole.Manager))
+        if (!await _context.Roles.AnyAsync(r => r.Name == SystemRole.Manager.ToString()))
         {
             var managerRole = new Role
             {
-                Id = (int)SystemRole.Manager,
                 Name = SystemRole.Manager.ToString(),
                 Description = "Manager with operational access",
                 DescriptionFa = "مدیر با دسترسی عملیاتی",
@@ -156,11 +152,10 @@ public class DatabaseSeeder : IDatabaseSeeder
         }
 
         // Operator Role
-        if (!await _context.Roles.AnyAsync(r => r.Id == (int)SystemRole.Operator))
+        if (!await _context.Roles.AnyAsync(r => r.Name == SystemRole.Operator.ToString()))
         {
             var operatorRole = new Role
             {
-                Id = (int)SystemRole.Operator,
                 Name = SystemRole.Operator.ToString(),
                 Description = "Operator with limited access",
                 DescriptionFa = "اپراتور با دسترسی محدود",
@@ -170,11 +165,10 @@ public class DatabaseSeeder : IDatabaseSeeder
         }
 
         // Viewer Role
-        if (!await _context.Roles.AnyAsync(r => r.Id == (int)SystemRole.Viewer))
+        if (!await _context.Roles.AnyAsync(r => r.Name == SystemRole.Viewer.ToString()))
         {
             var viewerRole = new Role
             {
-                Id = (int)SystemRole.Viewer,
                 Name = SystemRole.Viewer.ToString(),
                 Description = "Viewer with read-only access",
                 DescriptionFa = "مشاهده‌گر با دسترسی فقط خواندنی",
@@ -194,112 +188,135 @@ public class DatabaseSeeder : IDatabaseSeeder
     {
         var rolePermissions = new List<RolePermission>();
 
-        // SuperAdmin gets all permissions
-        var allPermissions = await _context.Permissions.Select(p => p.Id).ToListAsync();
-        var superAdminRoleId = (int)SystemRole.SuperAdmin;
+        // Get role and permission mappings by name
+        var superAdminRole = await _context.Roles.FirstOrDefaultAsync(r => r.Name == SystemRole.SuperAdmin.ToString());
+        var adminRole = await _context.Roles.FirstOrDefaultAsync(r => r.Name == SystemRole.Admin.ToString());
+        var managerRole = await _context.Roles.FirstOrDefaultAsync(r => r.Name == SystemRole.Manager.ToString());
+        var operatorRole = await _context.Roles.FirstOrDefaultAsync(r => r.Name == SystemRole.Operator.ToString());
+        var viewerRole = await _context.Roles.FirstOrDefaultAsync(r => r.Name == SystemRole.Viewer.ToString());
 
-        foreach (var permissionId in allPermissions)
+        var allPermissions = await _context.Permissions.ToListAsync();
+
+        // SuperAdmin gets all permissions
+        if (superAdminRole != null)
         {
-            if (!await _context.RolePermissions.AnyAsync(rp => rp.RoleId == superAdminRoleId && rp.PermissionId == permissionId))
+            foreach (var permission in allPermissions)
             {
-                rolePermissions.Add(new RolePermission
+                if (!await _context.RolePermissions.AnyAsync(rp => rp.RoleId == superAdminRole.Id && rp.PermissionId == permission.Id))
                 {
-                    RoleId = superAdminRoleId,
-                    PermissionId = permissionId
-                });
+                    rolePermissions.Add(new RolePermission
+                    {
+                        RoleId = superAdminRole.Id,
+                        PermissionId = permission.Id
+                    });
+                }
             }
         }
 
         // Admin gets most permissions (excluding system configuration)
-        var adminRoleId = (int)SystemRole.Admin;
-        var adminPermissions = allPermissions.Where(p => 
-            p != (int)SystemPermission.SystemConfiguration &&
-            p != (int)SystemPermission.SystemBackup &&
-            p != (int)SystemPermission.SystemRestore).ToList();
-
-        foreach (var permissionId in adminPermissions)
+        if (adminRole != null)
         {
-            if (!await _context.RolePermissions.AnyAsync(rp => rp.RoleId == adminRoleId && rp.PermissionId == permissionId))
+            var adminPermissions = allPermissions.Where(p => 
+                p.Name != SystemPermission.SystemConfiguration.ToString() &&
+                p.Name != SystemPermission.SystemBackup.ToString() &&
+                p.Name != SystemPermission.SystemRestore.ToString()).ToList();
+
+            foreach (var permission in adminPermissions)
             {
-                rolePermissions.Add(new RolePermission
+                if (!await _context.RolePermissions.AnyAsync(rp => rp.RoleId == adminRole.Id && rp.PermissionId == permission.Id))
                 {
-                    RoleId = adminRoleId,
-                    PermissionId = permissionId
-                });
+                    rolePermissions.Add(new RolePermission
+                    {
+                        RoleId = adminRole.Id,
+                        PermissionId = permission.Id
+                    });
+                }
             }
         }
 
         // Manager gets operational permissions
-        var managerRoleId = (int)SystemRole.Manager;
-        var managerPermissions = new[]
+        if (managerRole != null)
         {
-            (int)SystemPermission.ProductsView, (int)SystemPermission.ProductsCreate, (int)SystemPermission.ProductsEdit,
-            (int)SystemPermission.BOMView, (int)SystemPermission.BOMCreate, (int)SystemPermission.BOMEdit,
-            (int)SystemPermission.InventoryView, (int)SystemPermission.InventoryCreate, (int)SystemPermission.InventoryEdit,
-            (int)SystemPermission.ManufacturingView, (int)SystemPermission.ManufacturingCreate, (int)SystemPermission.ManufacturingEdit,
-            (int)SystemPermission.ProductionBatchView, (int)SystemPermission.ProductionBatchCreate, (int)SystemPermission.ProductionBatchEdit,
-            (int)SystemPermission.LocationView, (int)SystemPermission.LocationCreate, (int)SystemPermission.LocationEdit,
-            (int)SystemPermission.ReportsView
-        };
-
-        foreach (var permissionId in managerPermissions)
-        {
-            if (!await _context.RolePermissions.AnyAsync(rp => rp.RoleId == managerRoleId && rp.PermissionId == permissionId))
+            var managerPermissionNames = new[]
             {
-                rolePermissions.Add(new RolePermission
+                SystemPermission.ProductsView.ToString(), SystemPermission.ProductsCreate.ToString(), SystemPermission.ProductsEdit.ToString(),
+                SystemPermission.BOMView.ToString(), SystemPermission.BOMCreate.ToString(), SystemPermission.BOMEdit.ToString(),
+                SystemPermission.InventoryView.ToString(), SystemPermission.InventoryCreate.ToString(), SystemPermission.InventoryEdit.ToString(),
+                SystemPermission.ManufacturingView.ToString(), SystemPermission.ManufacturingCreate.ToString(), SystemPermission.ManufacturingEdit.ToString(),
+                SystemPermission.ProductionBatchView.ToString(), SystemPermission.ProductionBatchCreate.ToString(), SystemPermission.ProductionBatchEdit.ToString(),
+                SystemPermission.LocationView.ToString(), SystemPermission.LocationCreate.ToString(), SystemPermission.LocationEdit.ToString(),
+                SystemPermission.ReportsView.ToString()
+            };
+
+            var managerPermissions = allPermissions.Where(p => managerPermissionNames.Contains(p.Name)).ToList();
+
+            foreach (var permission in managerPermissions)
+            {
+                if (!await _context.RolePermissions.AnyAsync(rp => rp.RoleId == managerRole.Id && rp.PermissionId == permission.Id))
                 {
-                    RoleId = managerRoleId,
-                    PermissionId = permissionId
-                });
+                    rolePermissions.Add(new RolePermission
+                    {
+                        RoleId = managerRole.Id,
+                        PermissionId = permission.Id
+                    });
+                }
             }
         }
 
         // Operator gets basic operational permissions
-        var operatorRoleId = (int)SystemRole.Operator;
-        var operatorPermissions = new[]
+        if (operatorRole != null)
         {
-            (int)SystemPermission.ProductsView,
-            (int)SystemPermission.BOMView,
-            (int)SystemPermission.InventoryView, (int)SystemPermission.InventoryCreate,
-            (int)SystemPermission.ManufacturingView,
-            (int)SystemPermission.ProductionBatchView, (int)SystemPermission.ProductionBatchCreate,
-            (int)SystemPermission.LocationView
-        };
-
-        foreach (var permissionId in operatorPermissions)
-        {
-            if (!await _context.RolePermissions.AnyAsync(rp => rp.RoleId == operatorRoleId && rp.PermissionId == permissionId))
+            var operatorPermissionNames = new[]
             {
-                rolePermissions.Add(new RolePermission
+                SystemPermission.ProductsView.ToString(),
+                SystemPermission.BOMView.ToString(),
+                SystemPermission.InventoryView.ToString(), SystemPermission.InventoryCreate.ToString(),
+                SystemPermission.ManufacturingView.ToString(),
+                SystemPermission.ProductionBatchView.ToString(), SystemPermission.ProductionBatchCreate.ToString(),
+                SystemPermission.LocationView.ToString()
+            };
+
+            var operatorPermissions = allPermissions.Where(p => operatorPermissionNames.Contains(p.Name)).ToList();
+
+            foreach (var permission in operatorPermissions)
+            {
+                if (!await _context.RolePermissions.AnyAsync(rp => rp.RoleId == operatorRole.Id && rp.PermissionId == permission.Id))
                 {
-                    RoleId = operatorRoleId,
-                    PermissionId = permissionId
-                });
+                    rolePermissions.Add(new RolePermission
+                    {
+                        RoleId = operatorRole.Id,
+                        PermissionId = permission.Id
+                    });
+                }
             }
         }
 
         // Viewer gets only view permissions
-        var viewerRoleId = (int)SystemRole.Viewer;
-        var viewerPermissions = new[]
+        if (viewerRole != null)
         {
-            (int)SystemPermission.ProductsView,
-            (int)SystemPermission.BOMView,
-            (int)SystemPermission.InventoryView,
-            (int)SystemPermission.ManufacturingView,
-            (int)SystemPermission.ProductionBatchView,
-            (int)SystemPermission.LocationView,
-            (int)SystemPermission.ReportsView
-        };
-
-        foreach (var permissionId in viewerPermissions)
-        {
-            if (!await _context.RolePermissions.AnyAsync(rp => rp.RoleId == viewerRoleId && rp.PermissionId == permissionId))
+            var viewerPermissionNames = new[]
             {
-                rolePermissions.Add(new RolePermission
+                SystemPermission.ProductsView.ToString(),
+                SystemPermission.BOMView.ToString(),
+                SystemPermission.InventoryView.ToString(),
+                SystemPermission.ManufacturingView.ToString(),
+                SystemPermission.ProductionBatchView.ToString(),
+                SystemPermission.LocationView.ToString(),
+                SystemPermission.ReportsView.ToString()
+            };
+
+            var viewerPermissions = allPermissions.Where(p => viewerPermissionNames.Contains(p.Name)).ToList();
+
+            foreach (var permission in viewerPermissions)
+            {
+                if (!await _context.RolePermissions.AnyAsync(rp => rp.RoleId == viewerRole.Id && rp.PermissionId == permission.Id))
                 {
-                    RoleId = viewerRoleId,
-                    PermissionId = permissionId
-                });
+                    rolePermissions.Add(new RolePermission
+                    {
+                        RoleId = viewerRole.Id,
+                        PermissionId = permission.Id
+                    });
+                }
             }
         }
 
@@ -332,15 +349,22 @@ public class DatabaseSeeder : IDatabaseSeeder
         // Save to get the user ID
         await _context.SaveChangesAsync();
 
-        // Assign SuperAdmin role to admin user
-        var userRole = new UserRole
+        // Get SuperAdmin role
+        var superAdminRole = await _context.Roles.FirstOrDefaultAsync(r => r.Name == SystemRole.SuperAdmin.ToString());
+        
+        if (superAdminRole != null)
         {
-            UserId = adminUser.Id,
-            RoleId = (int)SystemRole.SuperAdmin,
-            AssignedAt = DateTime.UtcNow
-        };
+            // Assign SuperAdmin role to admin user
+            var userRole = new UserRole
+            {
+                UserId = adminUser.Id,
+                RoleId = superAdminRole.Id,
+                AssignedAt = DateTime.UtcNow
+            };
 
-        await _context.UserRoles.AddAsync(userRole);
+            await _context.UserRoles.AddAsync(userRole);
+        }
+        
         _logger.LogInformation("Created default admin user with username 'admin' and password 'admin'.");
     }
 

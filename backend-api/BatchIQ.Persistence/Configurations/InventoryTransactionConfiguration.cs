@@ -17,6 +17,11 @@ public class InventoryTransactionConfiguration : IEntityTypeConfiguration<Invent
         e.Property(t => t.Quantity).HasColumnType("decimal(18,4)");
         e.Property(t => t.BaseQuantity).HasColumnType("decimal(18,4)");
         
+        // Timestamp field - use datetime2(3) for better SQL Server compatibility
+        e.Property(t => t.Timestamp)
+         .HasColumnType("datetime2(3)")
+         .HasDefaultValueSql("GETUTCDATE()");
+        
         // Unit field
         e.Property(t => t.Unit)
          .HasConversion<int>()

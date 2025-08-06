@@ -15,11 +15,11 @@ public class UserRoleConfiguration : IEntityTypeConfiguration<UserRole>
         e.Property(ur => ur.AssignedAt)
          .IsRequired();
 
-        // Relationships
+        // Relationships - Fix cascade paths for SQL Server
         e.HasOne(ur => ur.User)
          .WithMany(u => u.UserRoles)
          .HasForeignKey(ur => ur.UserId)
-         .OnDelete(DeleteBehavior.Cascade);
+         .OnDelete(DeleteBehavior.NoAction);
 
         e.HasOne(ur => ur.Role)
          .WithMany(r => r.UserRoles)

@@ -50,11 +50,11 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         e.Property(u => u.LastLoginAt)
          .IsRequired(false);
 
-        // Relationships
+        // Relationships - Fix cascade paths for SQL Server
         e.HasMany(u => u.UserRoles)
          .WithOne(ur => ur.User)
          .HasForeignKey(ur => ur.UserId)
-         .OnDelete(DeleteBehavior.Cascade);
+         .OnDelete(DeleteBehavior.NoAction);
 
         // Indexes
         e.HasIndex(u => u.Username)

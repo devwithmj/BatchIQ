@@ -15,11 +15,11 @@ app.ConfigurePipeline();
 app.MapEndpoints();
 
 // Seed the database
-using (var scope = app.Services.CreateScope())
-{
-    var seeder = scope.ServiceProvider.GetRequiredService<IDatabaseSeeder>();
-    await seeder.SeedAsync();
-}
+// using (var scope = app.Services.CreateScope())
+// {
+//     var seeder = scope.ServiceProvider.GetRequiredService<IDatabaseSeeder>();
+//     await seeder.SeedAsync();
+// }
 
 app.Run();
 

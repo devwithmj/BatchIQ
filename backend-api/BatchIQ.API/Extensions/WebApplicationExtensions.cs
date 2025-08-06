@@ -25,6 +25,8 @@ public static class WebApplicationExtensions
             app.UseCors();
         }
 
+
+        app.UseDeveloperExceptionPage();
         // Authentication & Authorization middleware
         app.UseAuthentication();
         app.UseAuthorization();

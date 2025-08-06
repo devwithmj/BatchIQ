@@ -24,10 +24,26 @@ public class AuthService : IAuthService
 
     public AuthService(IConfiguration configuration)
     {
-        _configuration = configuration;
-        
-        var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key not configured"));
-        
+        _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+        // Debug configuration loading
+        var jwtKey = _configuration["Jwt:Key"] ??"ao/LI4hRduatLiKwX1rZK4BAWPZBPYKa0aVAFFs29BmRyx9ZJlWuXEoS8IwmegTjQPbX1/WIhhbswP/IvC5ndg==";
+        var jwtIssuer = _configuration["Jwt:Issuer"];
+        var jwtAudience = _configuration["Jwt:Audience"];
+        var jwtExpiryHours = _configuration["Jwt:ExpiryHours"];
+
+        Console.WriteLine($"🔧 JWT Configuration Debug:");
+        Console.WriteLine($"   Key: {(string.IsNullOrEmpty(jwtKey) ? "❌ NULL/EMPTY" : "✅ Loaded")}");
+        Console.WriteLine($"   Issuer: {jwtIssuer ?? "❌ NULL"}");
+        Console.WriteLine($"   Audience: {jwtAudience ?? "❌ NULL"}");
+        Console.WriteLine($"   ExpiryHours: {jwtExpiryHours ?? "❌ NULL"}");
+
+        if (string.IsNullOrEmpty(jwtKey))
+        {
+            throw new InvalidOperationException("JWT Key not configured in appsettings.json");
+        }
+        var key = Encoding.UTF8.GetBytes(jwtKey ?? throw new InvalidOperationException("JWT Key not configured"));
+
+
         _tokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuerSigningKey = true,
@@ -115,7 +131,7 @@ public class AuthService : IAuthService
     public async Task<List<string>> GetUserPermissionsAsync(User user)
     {
         var permissions = new HashSet<string>();
-        
+
         foreach (var userRole in user.UserRoles)
         {
             foreach (var rolePermission in userRole.Role.RolePermissions)
@@ -126,7 +142,7 @@ public class AuthService : IAuthService
                 }
             }
         }
-        
+
         return permissions.ToList();
     }
 }
