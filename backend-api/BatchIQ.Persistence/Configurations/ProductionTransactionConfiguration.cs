@@ -20,7 +20,7 @@ public class ProductionTransactionConfiguration : IEntityTypeConfiguration<Produ
         // Unit field
         e.Property(pt => pt.Unit)
          .HasConversion<int>()
-         .HasDefaultValue(SizeUnit.Piece);
+         .HasDefaultValue(SizeUnit.piece);
 
         // Status field
         e.Property(pt => pt.Status)

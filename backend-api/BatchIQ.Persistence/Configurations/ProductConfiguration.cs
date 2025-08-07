@@ -34,11 +34,11 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
         
         e.Property(p => p.UnitType)
          .HasConversion<int>()
-         .HasDefaultValue(SizeUnit.Piece);
+         .HasDefaultValue(SizeUnit.piece);
 
         e.Property(p => p.BaseUnit)
          .HasConversion<int>()
-         .HasDefaultValue(SizeUnit.Piece);
+         .HasDefaultValue(SizeUnit.piece);
 
         e.Property(p => p.Price).HasColumnType("decimal(12,2)");
 

@@ -22,7 +22,24 @@ public static class WebApplicationExtensions
         }
         else
         {
-            app.UseCors();
+            app.UseCors(options=>
+            {
+                options.WithOrigins(
+                        "http://localhost:3000",
+                        "https://localhost:3000",
+                        "http://localhost:3001",
+                        "https://localhost:3001",
+                        "http://localhost:4200",
+                        "https://localhost:4200",
+                        "https://batchiq.site",
+                        "https://www.batchiq.site",
+                        "http://batchiq.site",
+                        "http://www.batchiq.site"
+                      )
+                      .AllowAnyHeader()
+                      .AllowAnyMethod()
+                      .AllowCredentials();
+            });
         }
 
 

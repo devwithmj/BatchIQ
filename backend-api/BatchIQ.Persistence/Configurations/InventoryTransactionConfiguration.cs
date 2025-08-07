@@ -25,7 +25,7 @@ public class InventoryTransactionConfiguration : IEntityTypeConfiguration<Invent
         // Unit field
         e.Property(t => t.Unit)
          .HasConversion<int>()
-         .HasDefaultValue(SizeUnit.Piece);
+         .HasDefaultValue(SizeUnit.piece);
 
         // Cost tracking
         e.Property(t => t.UnitCost).HasColumnType("decimal(12,4)");

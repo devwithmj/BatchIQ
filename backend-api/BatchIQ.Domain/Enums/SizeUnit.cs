@@ -2,21 +2,20 @@ using System;
 
 namespace BatchIQ.Domain.Enums;
 
-public enum SizeUnit 
-{ 
+public enum SizeUnit
+{
     // Weight units
-    g = 1,      // gram (base unit for weight)
-    kg = 2,     // kilogram
-    lb = 3,     // pound
-    oz = 4,     // ounce
-    
-    // Count units
-    Piece = 10, // individual items (base unit for count)
-    Dozen = 11, // 12 pieces
-    Case = 12,  // variable count per case
-    
-    // Volume units (if needed)
-    ml = 20,    // milliliter (base unit for volume)
-    l = 21,     // liter
-    gal = 22    // gallon
+    gr = 0,
+    kg = 1,
+    ml = 2,
+    l = 3,
+    piece = 4,
+    pack = 5,
+    box = 6,
+    other = 7,
+    lb = 8,
+    pkg = 9,
+    plb = 10,
+    phandered = 11,
+    ea = 12,
 }

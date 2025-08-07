@@ -33,21 +33,20 @@ public static class UnitConverter
     {
         return unit switch
         {
+
             // Weight conversions (base: grams)
-            SizeUnit.g => quantity,
+            SizeUnit.gr => quantity,
             SizeUnit.kg => quantity * 1000m,
             SizeUnit.lb => quantity * 453.592m,
-            SizeUnit.oz => quantity * 28.3495m,
-
+            SizeUnit.ea => quantity, // Each is already base unit for count
+            SizeUnit.pkg => quantity, // Package is already base unit for count
+            SizeUnit.plb => quantity * 453.592m, // Pounds (lbs) to grams
+            SizeUnit.phandered => quantity * 100, // Hundreds to grams
             // Count conversions (base: pieces)
-            SizeUnit.Piece => quantity,
-            SizeUnit.Dozen => quantity * 12m,
-            SizeUnit.Case => quantity, // Case conversion depends on product-specific configuration
+            SizeUnit.piece => quantity,
+            SizeUnit.pack => quantity, // Pack is already base unit for count
+            SizeUnit.box => quantity, // Box is already base unit for count 
 
-            // Volume conversions (base: milliliters)
-            SizeUnit.ml => quantity,
-            SizeUnit.l => quantity * 1000m,
-            SizeUnit.gal => quantity * 3785.41m,
 
             _ => throw new ArgumentException($"Unknown unit: {unit}")
         };
@@ -64,20 +63,14 @@ public static class UnitConverter
         return targetUnit switch
         {
             // Weight conversions (from grams)
-            SizeUnit.g => baseQuantity,
+            SizeUnit.gr => baseQuantity,
             SizeUnit.kg => baseQuantity / 1000m,
             SizeUnit.lb => baseQuantity / 453.592m,
-            SizeUnit.oz => baseQuantity / 28.3495m,
+            SizeUnit.ea => baseQuantity, // Each is already base unit for count
+            SizeUnit.pkg => baseQuantity, // Package is already base unit for count
+            SizeUnit.plb => baseQuantity / 453.592m, // Pounds (lbs) from grams
+            SizeUnit.phandered => baseQuantity / 100, // Hundreds from
 
-            // Count conversions (from pieces)
-            SizeUnit.Piece => baseQuantity,
-            SizeUnit.Dozen => baseQuantity / 12m,
-            SizeUnit.Case => baseQuantity, // Case conversion depends on product-specific configuration
-
-            // Volume conversions (from milliliters)
-            SizeUnit.ml => baseQuantity,
-            SizeUnit.l => baseQuantity / 1000m,
-            SizeUnit.gal => baseQuantity / 3785.41m,
 
             _ => throw new ArgumentException($"Unknown unit: {targetUnit}")
         };
@@ -90,9 +83,12 @@ public static class UnitConverter
     {
         return unit switch
         {
-            SizeUnit.g or SizeUnit.kg or SizeUnit.lb or SizeUnit.oz => UnitCategory.Weight,
-            SizeUnit.Piece or SizeUnit.Dozen or SizeUnit.Case => UnitCategory.Count,
-            SizeUnit.ml or SizeUnit.l or SizeUnit.gal => UnitCategory.Volume,
+            SizeUnit.gr or SizeUnit.kg or SizeUnit.lb => UnitCategory.Weight,
+            SizeUnit.piece or SizeUnit.box or SizeUnit.ea or SizeUnit.pack => UnitCategory.Count,
+            SizeUnit.ml or SizeUnit.l => UnitCategory.Volume,
+            SizeUnit.pkg or SizeUnit.plb or SizeUnit.phandered => UnitCategory.Count, // Treat these as count for simplicity
+
+            SizeUnit.other => UnitCategory.Count, // Treat 'other' as count for flexibility
             _ => throw new ArgumentException($"Unknown unit: {unit}")
         };
     }
@@ -104,8 +100,8 @@ public static class UnitConverter
     {
         return category switch
         {
-            UnitCategory.Weight => SizeUnit.g,
-            UnitCategory.Count => SizeUnit.Piece,
+            UnitCategory.Weight => SizeUnit.gr,
+            UnitCategory.Count => SizeUnit.ea,
             UnitCategory.Volume => SizeUnit.ml,
             _ => throw new ArgumentException($"Unknown category: {category}")
         };

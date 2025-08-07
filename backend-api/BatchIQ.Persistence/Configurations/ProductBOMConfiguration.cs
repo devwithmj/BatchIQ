@@ -20,7 +20,7 @@ public class ProductBOMConfiguration : IEntityTypeConfiguration<ProductBOM>
         // Unit field
         e.Property(bom => bom.Unit)
          .HasConversion<int>()
-         .HasDefaultValue(SizeUnit.Piece);
+         .HasDefaultValue(SizeUnit.piece);
 
         // Flags and metadata
         e.Property(bom => bom.IsCritical)

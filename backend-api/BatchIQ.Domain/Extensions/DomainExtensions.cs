@@ -40,17 +40,20 @@ public static class InventoryTransactionExtensions
     {
         return unit switch
         {
-            SizeUnit.g => "g",
-            SizeUnit.kg => "kg",
-            SizeUnit.lb => "lb",
-            SizeUnit.oz => "oz",
-            SizeUnit.Piece => "pcs",
-            SizeUnit.Dozen => "dozen",
-            SizeUnit.Case => "case",
-            SizeUnit.ml => "ml",
-            SizeUnit.l => "L",
-            SizeUnit.gal => "gal",
-            _ => unit.ToString()
+            SizeUnit.gr => "grams",
+            SizeUnit.kg => "kilograms",
+            SizeUnit.ml => "milliliters",
+            SizeUnit.l => "liters",
+            SizeUnit.piece => "pieces",
+            SizeUnit.pack => "packs",
+            SizeUnit.box => "boxes",
+            SizeUnit.other => "other",
+            SizeUnit.lb => "pounds",
+            SizeUnit.pkg => "packages",
+            SizeUnit.plb => "pounds (lbs)",
+            SizeUnit.phandered => "hundreds",
+            SizeUnit.ea => "each",
+            _ => "unknown",
         };
     }
 }
@@ -92,7 +95,7 @@ public static class ProductExtensions
         {
             var requiredQuantity = component.QuantityRequired * quantityToProduce;
             var availableQuantity = getAvailableStock(component.ComponentProductId);
-            
+
             if (availableQuantity < requiredQuantity)
                 return false;
         }
@@ -107,7 +110,7 @@ public static class ProductExtensions
     {
         var name = language.ToLower() == "fa" ? product.NameFa : product.NameEn;
         var brand = language.ToLower() == "fa" ? product.BrandFa : product.BrandEn;
-        
+
         return string.IsNullOrEmpty(brand) ? name : $"{brand} {name}";
     }
 }
