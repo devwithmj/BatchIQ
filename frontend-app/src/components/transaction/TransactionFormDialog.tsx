@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
@@ -24,6 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Combobox, ComboboxOption } from "@/components/ui/combobox";
 
 import { api } from "@/lib/api";
 import { 
@@ -127,6 +128,30 @@ export default function TransactionFormDialog({ defaultValues, children }: Props
 
   const locationReqs = getLocationRequirements(watchedTransactionType);
 
+  // Convert products to combobox options
+  const productOptions: ComboboxOption[] = useMemo(() => {
+    return products?.map((product) => ({
+      value: product.id.toString(),
+      label: `${product.nameEn} (${product.brandEn}) - ${product.nameFa}`,
+      searchTerms: [
+        product.nameEn,
+        product.nameFa,
+        product.brandEn,
+        product.brandFa,
+        product.id.toString()
+      ].filter(Boolean)
+    })) || [];
+  }, [products]);
+
+  // Convert locations to combobox options
+  const locationOptions: ComboboxOption[] = useMemo(() => {
+    return locations?.map((location) => ({
+      value: location.id.toString(),
+      label: location.name,
+      searchTerms: [location.name, location.id.toString()]
+    })) || [];
+  }, [locations]);
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -146,21 +171,13 @@ export default function TransactionFormDialog({ defaultValues, children }: Props
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="productId">Product *</Label>
-            <Select
+            <Combobox
+              options={productOptions}
               value={form.watch("productId")?.toString() || ""}
               onValueChange={(value) => form.setValue("productId", parseInt(value))}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select product" />
-              </SelectTrigger>
-              <SelectContent>
-                {products?.map((product) => (
-                  <SelectItem key={product.id} value={product.id.toString()}>
-                    {product.nameEn} ({product.brandEn}) - {product.nameFa}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              placeholder="Select product"
+              emptyText="No product found"
+            />
             {form.formState.errors.productId && (
               <p className="text-sm text-red-600">
                 {form.formState.errors.productId.message}
@@ -213,24 +230,18 @@ export default function TransactionFormDialog({ defaultValues, children }: Props
               <Label htmlFor="fromLocationId">
                 From Location {locationReqs.fromRequired ? "*" : ""}
               </Label>
-              <Select
+              <Combobox
+                options={[
+                  { value: "none", label: "No Location" },
+                  ...locationOptions
+                ]}
                 value={form.watch("fromLocationId")?.toString() || "none"}
                 onValueChange={(value) => 
                   form.setValue("fromLocationId", value === "none" ? null : parseInt(value))
                 }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select from location" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">No Location</SelectItem>
-                  {locations?.map((location) => (
-                    <SelectItem key={location.id} value={location.id.toString()}>
-                      {location.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                placeholder="Select from location"
+                emptyText="No location found"
+              />
               {form.formState.errors.fromLocationId && (
                 <p className="text-sm text-red-600">
                   {form.formState.errors.fromLocationId.message}
@@ -244,24 +255,18 @@ export default function TransactionFormDialog({ defaultValues, children }: Props
               <Label htmlFor="toLocationId">
                 To Location {locationReqs.toRequired ? "*" : ""}
               </Label>
-              <Select
+              <Combobox
+                options={[
+                  { value: "none", label: "No Location" },
+                  ...locationOptions
+                ]}
                 value={form.watch("toLocationId")?.toString() || "none"}
                 onValueChange={(value) => 
                   form.setValue("toLocationId", value === "none" ? null : parseInt(value))
                 }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select to location" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">No Location</SelectItem>
-                  {locations?.map((location) => (
-                    <SelectItem key={location.id} value={location.id.toString()}>
-                      {location.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                placeholder="Select to location"
+                emptyText="No location found"
+              />
               {form.formState.errors.toLocationId && (
                 <p className="text-sm text-red-600">
                   {form.formState.errors.toLocationId.message}
