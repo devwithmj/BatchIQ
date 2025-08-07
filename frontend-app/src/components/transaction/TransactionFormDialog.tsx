@@ -181,7 +181,7 @@ export default function TransactionFormDialog({ defaultValues, children }: Props
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent size="auto" className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>
             {isEdit ? "Edit Transaction" : "Add New Transaction"}
