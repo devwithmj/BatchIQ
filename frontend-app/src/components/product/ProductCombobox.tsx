@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Scan } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Combobox, ComboboxOption } from "@/components/ui/combobox";
+import { OptimizedCombobox, ComboboxOption } from "@/components/ui/optimized-combobox";
 import { cn } from "@/lib/utils";
 
 interface ProductComboboxProps {
@@ -92,13 +92,15 @@ export function ProductCombobox({
   return (
     <div className={cn("flex gap-2", className)}>
       <div className="flex-1">
-        <Combobox
+        <OptimizedCombobox
           options={options}
           value={value}
           onValueChange={onValueChange}
           placeholder={placeholder}
           emptyText={emptyText}
           disabled={disabled}
+          searchDelay={200}
+          maxVisibleItems={50}
         />
       </div>
       <Button

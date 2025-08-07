@@ -25,6 +25,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Combobox, ComboboxOption } from "@/components/ui/combobox";
+import { OptimizedCombobox } from "@/components/ui/optimized-combobox";
 import { ProductCombobox } from "@/components/product/ProductCombobox";
 
 import { api } from "@/lib/api";
@@ -130,37 +131,44 @@ export default function TransactionFormDialog({ defaultValues, children }: Props
 
   const locationReqs = getLocationRequirements(watchedTransactionType);
 
-  // Convert products to combobox options
+  // Convert products to combobox options with performance optimization
   const productOptions: ComboboxOption[] = useMemo(() => {
-    return products?.map((product) => {
-      // Format codes for subtitle display
-      const codesSubtitle = product.codes && product.codes.length > 0 
-        ? `Codes: ${product.codes.join(', ')}` 
+    if (!products) return [];
+    
+    return products.map((product) => {
+      // Pre-compute search terms array once
+      const searchTerms = [
+        product.nameEn,
+        product.nameFa,
+        product.brandEn,
+        product.brandFa,
+        product.id.toString(),
+        ...(product.codes || [])
+      ].filter(Boolean);
+
+      // Format codes for subtitle display - only compute if codes exist
+      const codesSubtitle = product.codes?.length 
+        ? `Codes: ${product.codes.slice(0, 3).join(', ')}${product.codes.length > 3 ? '...' : ''}` 
         : undefined;
       
       return {
         value: product.id.toString(),
         label: `${product.nameEn} (${product.brandEn}) - ${product.nameFa}`,
         subtitle: codesSubtitle,
-        searchTerms: [
-          product.nameEn,
-          product.nameFa,
-          product.brandEn,
-          product.brandFa,
-          product.id.toString(),
-          ...(product.codes || []) // Include all codes in search terms
-        ].filter(Boolean)
+        searchTerms
       };
-    }) || [];
+    });
   }, [products]);
 
-  // Convert locations to combobox options
+  // Convert locations to combobox options with performance optimization
   const locationOptions: ComboboxOption[] = useMemo(() => {
-    return locations?.map((location) => ({
+    if (!locations) return [];
+    
+    return locations.map((location) => ({
       value: location.id.toString(),
       label: location.name,
       searchTerms: [location.name, location.id.toString()]
-    })) || [];
+    }));
   }, [locations]);
 
   return (
@@ -241,7 +249,7 @@ export default function TransactionFormDialog({ defaultValues, children }: Props
               <Label htmlFor="fromLocationId">
                 From Location {locationReqs.fromRequired ? "*" : ""}
               </Label>
-              <Combobox
+              <OptimizedCombobox
                 options={[
                   { value: "none", label: "No Location" },
                   ...locationOptions
@@ -252,6 +260,8 @@ export default function TransactionFormDialog({ defaultValues, children }: Props
                 }
                 placeholder="Select from location"
                 emptyText="No location found"
+                searchDelay={200}
+                maxVisibleItems={30}
               />
               {form.formState.errors.fromLocationId && (
                 <p className="text-sm text-red-600">
@@ -266,7 +276,7 @@ export default function TransactionFormDialog({ defaultValues, children }: Props
               <Label htmlFor="toLocationId">
                 To Location {locationReqs.toRequired ? "*" : ""}
               </Label>
-              <Combobox
+              <OptimizedCombobox
                 options={[
                   { value: "none", label: "No Location" },
                   ...locationOptions
@@ -277,6 +287,8 @@ export default function TransactionFormDialog({ defaultValues, children }: Props
                 }
                 placeholder="Select to location"
                 emptyText="No location found"
+                searchDelay={200}
+                maxVisibleItems={30}
               />
               {form.formState.errors.toLocationId && (
                 <p className="text-sm text-red-600">
