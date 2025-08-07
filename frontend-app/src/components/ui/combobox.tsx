@@ -120,6 +120,7 @@ export interface ComboboxOption {
   value: string;
   label: string;
   searchTerms?: string[]; // Additional search terms for better filtering
+  subtitle?: string; // Optional subtitle for additional context
 }
 
 interface ComboboxProps {
@@ -180,7 +181,14 @@ export function Combobox({
                       value === option.value ? "opacity-100" : "opacity-0"
                     )}
                   />
-                  {option.label}
+                  <div className="flex flex-col">
+                    <span>{option.label}</span>
+                    {option.subtitle && (
+                      <span className="text-xs text-muted-foreground">
+                        {option.subtitle}
+                      </span>
+                    )}
+                  </div>
                 </CommandItem>
               ))}
             </CommandList>

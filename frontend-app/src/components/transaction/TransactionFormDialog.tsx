@@ -25,6 +25,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Combobox, ComboboxOption } from "@/components/ui/combobox";
+import { ProductCombobox } from "@/components/product/ProductCombobox";
 
 import { api } from "@/lib/api";
 import { 
@@ -40,6 +41,7 @@ type Product = {
   nameFa: string;
   brandEn: string;
   brandFa: string;
+  codes: string[];
 };
 
 type Props = {
@@ -130,17 +132,26 @@ export default function TransactionFormDialog({ defaultValues, children }: Props
 
   // Convert products to combobox options
   const productOptions: ComboboxOption[] = useMemo(() => {
-    return products?.map((product) => ({
-      value: product.id.toString(),
-      label: `${product.nameEn} (${product.brandEn}) - ${product.nameFa}`,
-      searchTerms: [
-        product.nameEn,
-        product.nameFa,
-        product.brandEn,
-        product.brandFa,
-        product.id.toString()
-      ].filter(Boolean)
-    })) || [];
+    return products?.map((product) => {
+      // Format codes for subtitle display
+      const codesSubtitle = product.codes && product.codes.length > 0 
+        ? `Codes: ${product.codes.join(', ')}` 
+        : undefined;
+      
+      return {
+        value: product.id.toString(),
+        label: `${product.nameEn} (${product.brandEn}) - ${product.nameFa}`,
+        subtitle: codesSubtitle,
+        searchTerms: [
+          product.nameEn,
+          product.nameFa,
+          product.brandEn,
+          product.brandFa,
+          product.id.toString(),
+          ...(product.codes || []) // Include all codes in search terms
+        ].filter(Boolean)
+      };
+    }) || [];
   }, [products]);
 
   // Convert locations to combobox options
@@ -171,11 +182,11 @@ export default function TransactionFormDialog({ defaultValues, children }: Props
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="productId">Product *</Label>
-            <Combobox
+            <ProductCombobox
               options={productOptions}
               value={form.watch("productId")?.toString() || ""}
               onValueChange={(value) => form.setValue("productId", parseInt(value))}
-              placeholder="Select product"
+              placeholder="Search product by name, brand, or scan barcode..."
               emptyText="No product found"
             />
             {form.formState.errors.productId && (

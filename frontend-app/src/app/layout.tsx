@@ -9,7 +9,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body data-new-gr-c-s-check-loaded="14.1111.0" data-gr-ext-installed="">
+      <body data-new-gr-c-s-check-loaded="14.1116.0" data-gr-ext-installed="">
         {" "}
         <Providers>{children}</Providers>
         <Toaster />
