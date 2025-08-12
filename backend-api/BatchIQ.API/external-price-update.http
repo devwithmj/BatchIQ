@@ -1,0 +1,94 @@
+### External Price Update API Tests
+### 
+### This file contains tests for the external price update endpoint
+### The endpoint requires an API key in the X-API-Key header for authentication
+
+@base_url = https://localhost:7294/api/products
+@api_key = BatchIQ_PriceUpdate_2025_SecureKey_9dK8nF2wR7qL5xE3vM1tY6sP0jH4uA
+
+### Update price for existing product by code
+PUT {{base_url}}/external/price-update
+Content-Type: application/json
+X-API-Key: {{api_key}}
+
+{
+    "productCode": "123456789",
+    "newPrice": 29.99,
+    "notes": "Price updated via external system"
+}
+
+### Update price for non-existing product (will create new product)
+PUT {{base_url}}/external/price-update
+Content-Type: application/json
+X-API-Key: {{api_key}}
+
+{
+    "productCode": "NEW_PRODUCT_001",
+    "newPrice": 15.50
+}
+
+### Test with invalid API key (should fail)
+PUT {{base_url}}/external/price-update
+Content-Type: application/json
+X-API-Key: invalid_key
+
+{
+    "productCode": "123456789",
+    "newPrice": 29.99
+}
+
+### Test with missing API key (should fail)
+PUT {{base_url}}/external/price-update
+Content-Type: application/json
+
+{
+    "productCode": "123456789",
+    "newPrice": 29.99
+}
+
+### Test with negative price (should fail)
+PUT {{base_url}}/external/price-update
+Content-Type: application/json
+X-API-Key: {{api_key}}
+
+{
+    "productCode": "123456789",
+    "newPrice": -10.00
+}
+
+### Test with empty product code (should fail)
+PUT {{base_url}}/external/price-update
+Content-Type: application/json
+X-API-Key: {{api_key}}
+
+{
+    "productCode": "",
+    "newPrice": 29.99
+}
+
+### Get all auto-created products that need admin attention
+### Note: This endpoint requires JWT authentication with ProductsView permission
+GET {{base_url}}/auto-created
+# Authorization: Bearer YOUR_JWT_TOKEN_HERE
+
+### Get all externally updated products
+GET {{base_url}}/externally-updated
+# Authorization: Bearer YOUR_JWT_TOKEN_HERE
+
+### Get externally updated products since a specific date
+GET {{base_url}}/externally-updated?since=2025-01-01T00:00:00Z&limit=50
+# Authorization: Bearer YOUR_JWT_TOKEN_HERE
+
+### Clear external update tracking for a specific product
+PUT {{base_url}}/external/clear-tracking/1
+# Authorization: Bearer YOUR_JWT_TOKEN_HERE
+
+### Clear external update tracking for multiple products
+PUT {{base_url}}/external/clear-tracking-bulk
+Content-Type: application/json
+# Authorization: Bearer YOUR_JWT_TOKEN_HERE
+
+{
+    "productIds": [1, 2, 3],
+    "updatedSince": "2025-01-01T00:00:00Z"
+}

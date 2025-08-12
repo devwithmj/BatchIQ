@@ -16,12 +16,12 @@ public static class WebApplicationExtensions
         app.UseHttpsRedirection();
         
         // Use permissive CORS in development, restricted in production
-        if (app.Environment.IsDevelopment())
-        {
-            app.UseCors("Development");
-        }
-        else
-        {
+        // if (app.Environment.IsDevelopment())
+        // {
+        //     app.UseCors("Development");
+        // }
+        // else
+        // {
             app.UseCors(options=>
             {
                 options.WithOrigins(
@@ -40,7 +40,7 @@ public static class WebApplicationExtensions
                       .AllowAnyMethod()
                       .AllowCredentials();
             });
-        }
+        // }
 
 
         app.UseDeveloperExceptionPage();

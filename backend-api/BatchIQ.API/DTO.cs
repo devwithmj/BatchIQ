@@ -108,3 +108,25 @@ internal record TransactionDto(int ProductId, int? FromLocationId, int? ToLocati
                                decimal Quantity, SizeUnit Unit, TransactionType TransactionType,
                                DateTime? ExpiryDate, string? BatchNumber, 
                                string? Notes, decimal? UnitCost);
+
+// External Price Update DTOs
+internal record ExternalPriceUpdateDto(
+    string ProductCode,
+    decimal NewPrice,
+    string? Notes = null
+);
+
+internal record ExternalPriceUpdateResponseDto(
+    bool Success,
+    string Message,
+    string ProductCode,
+    decimal? OldPrice,
+    decimal? NewPrice,
+    bool IsNewProduct
+);
+
+// Clear External Tracking DTOs
+internal record ClearExternalTrackingDto(
+    List<int>? ProductIds = null,
+    DateTime? UpdatedSince = null
+);

@@ -20,6 +20,9 @@ public static class ResponseModels
             baseUnit = product.BaseUnit,
             price = product.Price,
             isManufactured = product.IsManufactured,
+            isAutoCreated = product.IsAutoCreated,
+            isExternallyUpdated = product.IsExternallyUpdated,
+            lastExternalUpdate = product.LastExternalUpdate,
             codes = product.Codes?.Select(c => c.Code).ToList() ?? new List<string>()
         };
     }
@@ -39,6 +42,9 @@ public static class ResponseModels
             baseUnit = product.BaseUnit,
             price = product.Price,
             isManufactured = product.IsManufactured,
+            isAutoCreated = product.IsAutoCreated,
+            isExternallyUpdated = product.IsExternallyUpdated,
+            lastExternalUpdate = product.LastExternalUpdate,
             materialCost = product.GetMaterialCost(),
             codes = product.Codes?.Select(c => c.Code).ToList() ?? new List<string>(),
             components = product.Components?.Select(c => c.ToProductBOMResponse()).ToList() ?? new List<object>(),

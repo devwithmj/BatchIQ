@@ -13,6 +13,17 @@ public class RequirePermissionAttribute : Attribute, IAuthorizationRequirement
     }
 }
 
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
+public class RequireApiKeyAttribute : Attribute, IAuthorizationRequirement
+{
+    public string ConfigKey { get; }
+
+    public RequireApiKeyAttribute(string configKey = "ExternalApi:PriceUpdateApiKey")
+    {
+        ConfigKey = configKey;
+    }
+}
+
 public class PermissionAuthorizationHandler : AuthorizationHandler<RequirePermissionAttribute>
 {
     protected override Task HandleRequirementAsync(
@@ -22,6 +33,36 @@ public class PermissionAuthorizationHandler : AuthorizationHandler<RequirePermis
         if (context.User.HasClaim("permission", requirement.Permission))
         {
             context.Succeed(requirement);
+        }
+
+        return Task.CompletedTask;
+    }
+}
+
+public class ApiKeyAuthorizationHandler : AuthorizationHandler<RequireApiKeyAttribute>
+{
+    private readonly IConfiguration _configuration;
+
+    public ApiKeyAuthorizationHandler(IConfiguration configuration)
+    {
+        _configuration = configuration;
+    }
+
+    protected override Task HandleRequirementAsync(
+        AuthorizationHandlerContext context,
+        RequireApiKeyAttribute requirement)
+    {
+        if (context.Resource is HttpContext httpContext)
+        {
+            var providedApiKey = httpContext.Request.Headers["X-API-Key"].FirstOrDefault();
+            var expectedApiKey = _configuration[requirement.ConfigKey];
+
+            if (!string.IsNullOrEmpty(providedApiKey) && 
+                !string.IsNullOrEmpty(expectedApiKey) && 
+                providedApiKey == expectedApiKey)
+            {
+                context.Succeed(requirement);
+            }
         }
 
         return Task.CompletedTask;
@@ -122,8 +163,13 @@ public static class AuthorizationExtensions
                 policy.RequireRole("SuperAdmin", "Admin"));
             options.AddPolicy("ManagerOrAbove", policy => 
                 policy.RequireRole("SuperAdmin", "Admin", "Manager"));
+
+            // API Key based policies
+            options.AddPolicy("PriceUpdateApiKey", policy =>
+                policy.Requirements.Add(new RequireApiKeyAttribute()));
         });
 
         services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
+        services.AddScoped<IAuthorizationHandler, ApiKeyAuthorizationHandler>();
     }
 }

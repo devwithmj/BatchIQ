@@ -34,6 +34,9 @@ public class Product
     public decimal? MinimumStock { get; set; }     // Minimum inventory level
     public decimal? ReorderPoint { get; set; }     // When to reorder
     public bool IsActive { get; set; } = true;     // Product lifecycle management
+    public bool IsAutoCreated { get; set; } = false;  // Flag for products created automatically via external price updates
+    public bool IsExternallyUpdated { get; set; } = false;  // Flag for products updated via external API
+    public DateTime? LastExternalUpdate { get; set; }  // When the product was last updated externally
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? UpdatedAt { get; set; }
 

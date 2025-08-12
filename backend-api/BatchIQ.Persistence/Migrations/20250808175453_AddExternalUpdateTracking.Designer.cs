@@ -4,6 +4,7 @@ using BatchIQ.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BatchIQ.Persistence.Migrations
 {
     [DbContext(typeof(BatchIQDbContext))]
-    partial class BatchIQDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250808175453_AddExternalUpdateTracking")]
+    partial class AddExternalUpdateTracking
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

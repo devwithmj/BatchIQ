@@ -4,6 +4,7 @@ using BatchIQ.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BatchIQ.Persistence.Migrations
 {
     [DbContext(typeof(BatchIQDbContext))]
-    partial class BatchIQDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250807235829_AddIsAutoCreatedToProduct")]
+    partial class AddIsAutoCreatedToProduct
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -422,9 +425,6 @@ namespace BatchIQ.Persistence.Migrations
                     b.Property<bool>("IsAutoCreated")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsExternallyUpdated")
-                        .HasColumnType("bit");
-
                     b.Property<bool>("IsManufactured")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
@@ -434,9 +434,6 @@ namespace BatchIQ.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
                         .HasDefaultValue(false);
-
-                    b.Property<DateTime?>("LastExternalUpdate")
-                        .HasColumnType("datetime2");
 
                     b.Property<decimal?>("MinimumStock")
                         .HasColumnType("decimal(12,2)");
