@@ -24,8 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Combobox, ComboboxOption } from "@/components/ui/combobox";
-import { OptimizedCombobox } from "@/components/ui/optimized-combobox";
+import { OptimizedCombobox, ComboboxOption } from "@/components/ui/optimized-combobox";
 import { ProductCombobox } from "@/components/product/ProductCombobox";
 
 import { api } from "@/lib/api";

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Scan } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { OptimizedCombobox, ComboboxOption } from "@/components/ui/optimized-combobox";
@@ -27,7 +27,20 @@ export function ProductCombobox({
 }: ProductComboboxProps) {
   const [isScanning, setIsScanning] = useState(false);
   const [barcodeInput, setBarcodeInput] = useState("");
-  const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleBarcodeComplete = useCallback((code: string) => {
+    // Find product by barcode/code
+    const foundOption = options.find(option => 
+      option.searchTerms?.some(term => 
+        term.toLowerCase() === code.toLowerCase() ||
+        term.includes(code)
+      )
+    );
+
+    if (foundOption) {
+      onValueChange?.(foundOption.value);
+    }
+  }, [options, onValueChange]);
 
   // Handle barcode scanner input (usually very fast typing)
   useEffect(() => {
@@ -66,21 +79,7 @@ export function ProductCombobox({
       document.removeEventListener("keydown", handleKeyDown);
       clearTimeout(timer);
     };
-  }, [isScanning, barcodeInput]);
-
-  const handleBarcodeComplete = (code: string) => {
-    // Find product by barcode/code
-    const foundOption = options.find(option => 
-      option.searchTerms?.some(term => 
-        term.toLowerCase() === code.toLowerCase() ||
-        term.includes(code)
-      )
-    );
-
-    if (foundOption) {
-      onValueChange?.(foundOption.value);
-    }
-  };
+  }, [isScanning, barcodeInput, handleBarcodeComplete]);
 
   const handleManualBarcodeEntry = () => {
     const code = prompt("Enter barcode manually:");
