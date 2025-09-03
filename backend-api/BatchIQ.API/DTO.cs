@@ -26,7 +26,12 @@ internal record CreateProductDto(
     SizeUnit? BaseUnit,
     decimal Price,
     bool? IsManufactured,
-    List<string>? Codes
+    List<string>? Codes,
+    // Box/Packaging specifications
+    decimal? PiecesPerBox = null,
+    SizeUnit? BoxUnit = null,
+    decimal? BoxWeight = null,
+    string? BoxDescription = null
 );
 
 internal record UpdateProductDto(
@@ -40,7 +45,12 @@ internal record UpdateProductDto(
     SizeUnit? BaseUnit,
     decimal Price,
     bool? IsManufactured,
-    List<string>? Codes
+    List<string>? Codes,
+    // Box/Packaging specifications
+    decimal? PiecesPerBox = null,
+    SizeUnit? BoxUnit = null,
+    decimal? BoxWeight = null,
+    string? BoxDescription = null
 );
 
 // Enhanced Product DTO with BOM information
@@ -129,4 +139,22 @@ internal record ExternalPriceUpdateResponseDto(
 internal record ClearExternalTrackingDto(
     List<int>? ProductIds = null,
     DateTime? UpdatedSince = null
+);
+
+// Unit Conversion DTOs
+internal record UnitConversionRequestDto(
+    int ProductId,
+    decimal Quantity,
+    SizeUnit FromUnit,
+    SizeUnit ToUnit
+);
+
+internal record UnitConversionResponseDto(
+    int ProductId,
+    decimal OriginalQuantity,
+    SizeUnit OriginalUnit,
+    decimal ConvertedQuantity,
+    SizeUnit ConvertedUnit,
+    string DisplayText,
+    bool ConversionSupported
 );

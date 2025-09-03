@@ -1,0 +1,106 @@
+### Single Product Usage Examples
+### 
+### This file demonstrates how products behave when used as singles
+### vs products that support box/piece conversion
+
+@base_url = https://localhost:7294/api/products
+@jwt_token = YOUR_JWT_TOKEN_HERE
+
+### 1. Create a SINGLE-ONLY product (no box specifications)
+POST {{base_url}}
+Content-Type: application/json
+Authorization: Bearer {{jwt_token}}
+
+{
+    "nameEn": "Premium Olive Oil",
+    "nameFa": "روغن زیتون درجه یک",
+    "brandEn": "Mediterranean Gold",
+    "brandFa": "طلای مدیترانه",
+    "productType": 2,
+    "sizeValue": 500,
+    "unitType": 2,
+    "baseUnit": 2,
+    "price": 25.99,
+    "codes": ["OIL-500ML"],
+    "piecesPerBox": null,
+    "boxUnit": null,
+    "boxDescription": null
+}
+
+### 2. Create a FLEXIBLE product (supports both single and box)
+POST {{base_url}}
+Content-Type: application/json
+Authorization: Bearer {{jwt_token}}
+
+{
+    "nameEn": "Energy Drink",
+    "nameFa": "نوشیدنی انرژی زا",
+    "brandEn": "PowerBoost",
+    "brandFa": "پاور بوست",
+    "productType": 2,
+    "sizeValue": 250,
+    "unitType": 4,
+    "baseUnit": 4,
+    "price": 2.50,
+    "codes": ["ENERGY-250ML"],
+    "piecesPerBox": 12,
+    "boxUnit": 6,
+    "boxWeight": 3.2,
+    "boxDescription": "12 cans per box"
+}
+
+### 3. Try to convert single-only product (should fail gracefully)
+POST {{base_url}}/convert-units
+Content-Type: application/json
+Authorization: Bearer {{jwt_token}}
+
+{
+    "productId": 1,
+    "quantity": 5,
+    "fromUnit": 4,
+    "toUnit": 6
+}
+
+### 4. Convert flexible product: 1 piece to boxes
+POST {{base_url}}/convert-units
+Content-Type: application/json
+Authorization: Bearer {{jwt_token}}
+
+{
+    "productId": 2,
+    "quantity": 1,
+    "fromUnit": 4,
+    "toUnit": 6
+}
+
+### 5. Convert flexible product: 25 pieces to boxes (partial box)
+POST {{base_url}}/convert-units
+Content-Type: application/json
+Authorization: Bearer {{jwt_token}}
+
+{
+    "productId": 2,
+    "quantity": 25,
+    "fromUnit": 4,
+    "toUnit": 6
+}
+
+### 6. Convert flexible product: 2.5 boxes to pieces
+POST {{base_url}}/convert-units
+Content-Type: application/json
+Authorization: Bearer {{jwt_token}}
+
+{
+    "productId": 2,
+    "quantity": 2.5,
+    "fromUnit": 6,
+    "toUnit": 4
+}
+
+### 7. Get single-only product details
+GET {{base_url}}/1
+Authorization: Bearer {{jwt_token}}
+
+### 8. Get flexible product details
+GET {{base_url}}/2
+Authorization: Bearer {{jwt_token}}

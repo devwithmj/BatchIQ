@@ -27,6 +27,12 @@ public class Product
     //-- inventory management units
     public SizeUnit BaseUnit { get; set; }   // Base unit for inventory calculations (e.g., g for weight-based products)
 
+    //-- box/packaging specifications
+    public decimal? PiecesPerBox { get; set; }  // How many pieces are in one box (e.g., 24 pieces per box)
+    public SizeUnit? BoxUnit { get; set; }      // The unit for box packaging (usually SizeUnit.box)
+    public decimal? BoxWeight { get; set; }     // Weight of one box including packaging
+    public string? BoxDescription { get; set; }  // Description of box (e.g., "24 pcs per box", "Carton of 24")
+
     //-- price
     public decimal Price { get; set; }       // sell price or SKU price
 

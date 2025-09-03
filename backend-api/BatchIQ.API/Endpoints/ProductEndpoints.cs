@@ -2,6 +2,7 @@ using BatchIQ.API.Models;
 using BatchIQ.API;
 using BatchIQ.Domain.Entities;
 using BatchIQ.Domain.Enums;
+using BatchIQ.Domain.Extensions;
 using BatchIQ.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -31,6 +32,9 @@ public static class ProductEndpoints
              .RequireAuthorization("ProductsEdit");
         group.MapPut("/external/clear-tracking-bulk", ClearExternalUpdateTrackingBulk)
              .RequireAuthorization("ProductsEdit");
+
+        // Unit conversion endpoint
+        group.MapPost("/convert-units", ConvertUnits).RequireAuthorization("ProductsView");
     }
 
     private static async Task<IResult> GetAllProducts(BatchIQDbContext db, ProductType? productType = null, bool? isManufactured = null)
@@ -167,7 +171,11 @@ public static class ProductEndpoints
             UnitType = dto.UnitType,
             BaseUnit = dto.BaseUnit ?? dto.UnitType,
             Price = dto.Price,
-            IsManufactured = dto.IsManufactured ?? false
+            IsManufactured = dto.IsManufactured ?? false,
+            PiecesPerBox = dto.PiecesPerBox,
+            BoxUnit = dto.BoxUnit,
+            BoxWeight = dto.BoxWeight,
+            BoxDescription = dto.BoxDescription
         };
 
         db.Products.Add(product);
@@ -214,6 +222,10 @@ public static class ProductEndpoints
         product.BaseUnit = dto.BaseUnit ?? product.BaseUnit;
         product.Price = dto.Price;
         product.IsManufactured = dto.IsManufactured ?? product.IsManufactured;
+        product.PiecesPerBox = dto.PiecesPerBox;
+        product.BoxUnit = dto.BoxUnit;
+        product.BoxWeight = dto.BoxWeight;
+        product.BoxDescription = dto.BoxDescription;
 
         // Update product codes
         if (dto.Codes != null)
@@ -447,5 +459,45 @@ public static class ProductEndpoints
             updatedCount = productsToUpdate.Count,
             productIds = productsToUpdate.Select(p => p.Id).ToList()
         });
+    }
+
+    private static async Task<IResult> ConvertUnits(UnitConversionRequestDto dto, BatchIQDbContext db)
+    {
+        var product = await db.Products.FindAsync(dto.ProductId);
+
+        if (product == null)
+            return Results.NotFound($"Product with ID {dto.ProductId} not found");
+
+        try
+        {
+            var convertedQuantity = product.GetQuantityInUnit(dto.Quantity, dto.FromUnit, dto.ToUnit);
+            var displayText = product.GetBoxPieceDisplay(convertedQuantity, dto.ToUnit);
+
+            var response = new UnitConversionResponseDto(
+                dto.ProductId,
+                dto.Quantity,
+                dto.FromUnit,
+                convertedQuantity,
+                dto.ToUnit,
+                displayText,
+                true
+            );
+
+            return Results.Ok(response);
+        }
+        catch (InvalidOperationException ex)
+        {
+            var response = new UnitConversionResponseDto(
+                dto.ProductId,
+                dto.Quantity,
+                dto.FromUnit,
+                0,
+                dto.ToUnit,
+                ex.Message,
+                false
+            );
+
+            return Results.BadRequest(response);
+        }
     }
 }

@@ -23,6 +23,12 @@ public static class ResponseModels
             isAutoCreated = product.IsAutoCreated,
             isExternallyUpdated = product.IsExternallyUpdated,
             lastExternalUpdate = product.LastExternalUpdate,
+            // Box/Packaging specifications
+            piecesPerBox = product.PiecesPerBox,
+            boxUnit = product.BoxUnit,
+            boxWeight = product.BoxWeight,
+            boxDescription = product.BoxDescription,
+            supportsBoxPieceConversion = product.SupportsBoxPieceConversion(),
             codes = product.Codes?.Select(c => c.Code).ToList() ?? new List<string>()
         };
     }
@@ -45,6 +51,12 @@ public static class ResponseModels
             isAutoCreated = product.IsAutoCreated,
             isExternallyUpdated = product.IsExternallyUpdated,
             lastExternalUpdate = product.LastExternalUpdate,
+            // Box/Packaging specifications
+            piecesPerBox = product.PiecesPerBox,
+            boxUnit = product.BoxUnit,
+            boxWeight = product.BoxWeight,
+            boxDescription = product.BoxDescription,
+            supportsBoxPieceConversion = product.SupportsBoxPieceConversion(),
             materialCost = product.GetMaterialCost(),
             codes = product.Codes?.Select(c => c.Code).ToList() ?? new List<string>(),
             components = product.Components?.Select(c => c.ToProductBOMResponse()).ToList() ?? new List<object>(),

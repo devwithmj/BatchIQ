@@ -33,28 +33,7 @@ public static class InventoryTransactionExtensions
     /// </summary>
     public static string GetQuantityDisplay(this InventoryTransaction transaction)
     {
-        return $"{transaction.Quantity:N2} {GetUnitDisplayName(transaction.Unit)}";
-    }
-
-    private static string GetUnitDisplayName(SizeUnit unit)
-    {
-        return unit switch
-        {
-            SizeUnit.gr => "grams",
-            SizeUnit.kg => "kilograms",
-            SizeUnit.ml => "milliliters",
-            SizeUnit.l => "liters",
-            SizeUnit.piece => "pieces",
-            SizeUnit.pack => "packs",
-            SizeUnit.box => "boxes",
-            SizeUnit.other => "other",
-            SizeUnit.lb => "pounds",
-            SizeUnit.pkg => "packages",
-            SizeUnit.plb => "pounds (lbs)",
-            SizeUnit.phandered => "hundreds",
-            SizeUnit.ea => "each",
-            _ => "unknown",
-        };
+        return $"{transaction.Quantity:N2} {ProductExtensions.GetUnitDisplayName(transaction.Unit)}";
     }
 }
 
@@ -112,5 +91,110 @@ public static class ProductExtensions
         var brand = language.ToLower() == "fa" ? product.BrandFa : product.BrandEn;
 
         return string.IsNullOrEmpty(brand) ? name : $"{brand} {name}";
+    }
+
+    /// <summary>
+    /// Converts pieces to boxes based on the product's pieces per box configuration
+    /// </summary>
+    public static decimal ConvertPiecesToBoxes(this Product product, decimal pieces)
+    {
+        if (!product.PiecesPerBox.HasValue || product.PiecesPerBox.Value <= 0)
+            throw new InvalidOperationException($"Product {product.Id} does not have valid pieces per box configuration");
+
+        return pieces / product.PiecesPerBox.Value;
+    }
+
+    /// <summary>
+    /// Converts boxes to pieces based on the product's pieces per box configuration
+    /// </summary>
+    public static decimal ConvertBoxesToPieces(this Product product, decimal boxes)
+    {
+        if (!product.PiecesPerBox.HasValue || product.PiecesPerBox.Value <= 0)
+            throw new InvalidOperationException($"Product {product.Id} does not have valid pieces per box configuration");
+
+        return boxes * product.PiecesPerBox.Value;
+    }
+
+    /// <summary>
+    /// Gets the quantity in the specified unit, converting between boxes and pieces if necessary
+    /// </summary>
+    public static decimal GetQuantityInUnit(this Product product, decimal currentQuantity, SizeUnit currentUnit, SizeUnit targetUnit)
+    {
+        // If units are the same, no conversion needed
+        if (currentUnit == targetUnit)
+            return currentQuantity;
+
+        // Handle box/piece conversions
+        if (currentUnit == SizeUnit.piece && targetUnit == SizeUnit.box)
+        {
+            return product.ConvertPiecesToBoxes(currentQuantity);
+        }
+        else if (currentUnit == SizeUnit.box && targetUnit == SizeUnit.piece)
+        {
+            return product.ConvertBoxesToPieces(currentQuantity);
+        }
+
+        // For other unit conversions, use the existing UnitConverter
+        return UnitConverter.Convert(currentQuantity, currentUnit, targetUnit);
+    }
+
+    /// <summary>
+    /// Checks if the product supports box/piece conversion
+    /// </summary>
+    public static bool SupportsBoxPieceConversion(this Product product)
+    {
+        return product.PiecesPerBox.HasValue && product.PiecesPerBox.Value > 0;
+    }
+
+    /// <summary>
+    /// Gets a display string showing both box and piece quantities
+    /// </summary>
+    public static string GetBoxPieceDisplay(this Product product, decimal quantity, SizeUnit unit)
+    {
+        if (!product.SupportsBoxPieceConversion())
+            return $"{quantity:N2} {GetUnitDisplayName(unit)}";
+
+        if (unit == SizeUnit.box)
+        {
+            var pieces = product.ConvertBoxesToPieces(quantity);
+            return $"{quantity:N0} boxes ({pieces:N0} pieces)";
+        }
+        else if (unit == SizeUnit.piece)
+        {
+            var boxes = product.ConvertPiecesToBoxes(quantity);
+            var remainingPieces = quantity % product.PiecesPerBox.Value;
+            
+            if (remainingPieces == 0)
+            {
+                return $"{boxes:N0} boxes ({quantity:N0} pieces)";
+            }
+            else
+            {
+                return $"{Math.Floor(boxes):N0} boxes + {remainingPieces:N0} pieces ({quantity:N0} total pieces)";
+            }
+        }
+
+        return $"{quantity:N2} {GetUnitDisplayName(unit)}";
+    }
+
+    public static string GetUnitDisplayName(SizeUnit unit)
+    {
+        return unit switch
+        {
+            SizeUnit.gr => "grams",
+            SizeUnit.kg => "kilograms", 
+            SizeUnit.ml => "milliliters",
+            SizeUnit.l => "liters",
+            SizeUnit.piece => "pieces",
+            SizeUnit.pack => "packs",
+            SizeUnit.box => "boxes",
+            SizeUnit.other => "other",
+            SizeUnit.lb => "pounds",
+            SizeUnit.pkg => "packages",
+            SizeUnit.plb => "pounds (lbs)",
+            SizeUnit.phandered => "hundreds",
+            SizeUnit.ea => "each",
+            _ => "unknown",
+        };
     }
 }

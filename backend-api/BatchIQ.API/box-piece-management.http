@@ -1,0 +1,136 @@
+### Box/Piece Product Management API Tests
+### 
+### This file demonstrates how to create and manage products with box specifications
+### and convert between pieces and boxes
+
+@base_url = https://localhost:7294/api/products
+@jwt_token = YOUR_JWT_TOKEN_HERE
+
+### Create a product with box specifications
+POST {{base_url}}
+Content-Type: application/json
+Authorization: Bearer {{jwt_token}}
+
+{
+    "nameEn": "Mixed Nuts Premium",
+    "nameFa": "آجیل مخلوط درجه یک",
+    "brandEn": "BatchIQ Foods",
+    "brandFa": "غذای بچ آی کیو",
+    "productType": 2,
+    "sizeValue": 250,
+    "unitType": 1,
+    "baseUnit": 4,
+    "price": 15.99,
+    "isManufactured": false,
+    "codes": ["123456789012", "MXN-PREM-250"],
+    "piecesPerBox": 24,
+    "boxUnit": 6,
+    "boxWeight": 6.5,
+    "boxDescription": "24 pieces per box - 250g each"
+}
+
+### Create another product - Chocolate bars
+POST {{base_url}}
+Content-Type: application/json
+Authorization: Bearer {{jwt_token}}
+
+{
+    "nameEn": "Dark Chocolate Bar",
+    "nameFa": "شکلات تلخ",
+    "brandEn": "Cocoa Delights",
+    "brandFa": "لذت کاکائو",
+    "productType": 2,
+    "sizeValue": 100,
+    "unitType": 0,
+    "baseUnit": 4,
+    "price": 3.50,
+    "isManufactured": false,
+    "codes": ["987654321098"],
+    "piecesPerBox": 12,
+    "boxUnit": 6,
+    "boxWeight": 1.3,
+    "boxDescription": "12 bars per box - 100g each"
+}
+
+### Update product with box specifications
+PUT {{base_url}}/1
+Content-Type: application/json
+Authorization: Bearer {{jwt_token}}
+
+{
+    "nameEn": "Mixed Nuts Premium Updated",
+    "nameFa": "آجیل مخلوط درجه یک بروز شده",
+    "brandEn": "BatchIQ Foods",
+    "brandFa": "غذای بچ آی کیو",
+    "productType": 2,
+    "sizeValue": 250,
+    "unitType": 1,
+    "baseUnit": 4,
+    "price": 16.99,
+    "isManufactured": false,
+    "codes": ["123456789012", "MXN-PREM-250"],
+    "piecesPerBox": 24,
+    "boxUnit": 6,
+    "boxWeight": 6.8,
+    "boxDescription": "24 pieces per box - 250g each (updated packaging)"
+}
+
+### Convert 5 boxes to pieces for product ID 1
+POST {{base_url}}/convert-units
+Content-Type: application/json
+Authorization: Bearer {{jwt_token}}
+
+{
+    "productId": 1,
+    "quantity": 5,
+    "fromUnit": 6,
+    "toUnit": 4
+}
+
+### Convert 144 pieces to boxes for product ID 1
+POST {{base_url}}/convert-units
+Content-Type: application/json
+Authorization: Bearer {{jwt_token}}
+
+{
+    "productId": 1,
+    "quantity": 144,
+    "fromUnit": 4,
+    "toUnit": 6
+}
+
+### Convert 30 pieces to boxes for product ID 1 (should show partial boxes)
+POST {{base_url}}/convert-units
+Content-Type: application/json
+Authorization: Bearer {{jwt_token}}
+
+{
+    "productId": 1,
+    "quantity": 30,
+    "fromUnit": 4,
+    "toUnit": 6
+}
+
+### Try to convert for a product without box specifications (should fail gracefully)
+POST {{base_url}}/convert-units
+Content-Type: application/json
+Authorization: Bearer {{jwt_token}}
+
+{
+    "productId": 999,
+    "quantity": 10,
+    "fromUnit": 4,
+    "toUnit": 6
+}
+
+### Get product details to see box specifications
+GET {{base_url}}/1
+Authorization: Bearer {{jwt_token}}
+
+### Get all products (should show box specification fields)
+GET {{base_url}}
+Authorization: Bearer {{jwt_token}}
+
+### Get product with BOM details (including box specifications)
+GET {{base_url}}/1/with-bom
+Authorization: Bearer {{jwt_token}}
