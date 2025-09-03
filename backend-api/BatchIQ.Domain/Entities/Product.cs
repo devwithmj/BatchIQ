@@ -7,11 +7,9 @@ public class Product
 {
     public int Id { get; set; }
 
-    //-- names
-    public string NameEn  { get; set; } = null!;
-    public string NameFa  { get; set; } = null!;
-
-    //-- brands
+    // Core Identity - Consider extracting to value objects
+    public string NameEn { get; set; } = null!;
+    public string NameFa { get; set; } = null!;
     public string BrandEn { get; set; } = null!;
     public string BrandFa { get; set; } = null!;
 

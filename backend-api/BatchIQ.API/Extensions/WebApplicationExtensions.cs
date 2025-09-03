@@ -16,13 +16,13 @@ public static class WebApplicationExtensions
         app.UseHttpsRedirection();
         
         // Use permissive CORS in development, restricted in production
-        // if (app.Environment.IsDevelopment())
-        // {
-        //     app.UseCors("Development");
-        // }
-        // else
-        // {
-            app.UseCors(options=>
+        if (app.Environment.IsDevelopment())
+        {
+            app.UseCors("Development");
+        }
+        else
+        {
+            app.UseCors(options =>
             {
                 options.WithOrigins(
                         "http://localhost:3000",
@@ -40,7 +40,7 @@ public static class WebApplicationExtensions
                       .AllowAnyMethod()
                       .AllowCredentials();
             });
-        // }
+        }
 
 
         app.UseDeveloperExceptionPage();

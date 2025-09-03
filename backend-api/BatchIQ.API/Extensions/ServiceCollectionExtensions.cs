@@ -12,49 +12,8 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
     {
-        // 🔍 CONFIGURATION DEBUGGING
-        Console.WriteLine("🔧 =================================");
-        Console.WriteLine("🔧 CONFIGURATION DEBUG INFORMATION");
-        Console.WriteLine("🔧 =================================");
-
-        // Check which files are being loaded
-        var configBuilder = configuration as IConfigurationBuilder;
-        if (configuration is IConfigurationRoot configRoot)
-        {
-            Console.WriteLine("📁 Configuration Sources:");
-            foreach (var source in configRoot.Providers)
-            {
-                Console.WriteLine($"   - {source.GetType().Name}: {source}");
-            }
-        }
-
-        // Check current working directory
-        Console.WriteLine($"📂 Current Directory: {Environment.CurrentDirectory}");
-        Console.WriteLine($"🌍 Environment: {Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Not Set"}");
-
-        // Check specific JWT configuration values
-        Console.WriteLine("🔑 JWT Configuration:");
-        Console.WriteLine($"   Key: {(string.IsNullOrEmpty(configuration["Jwt:Key"]) ? "❌ NULL/EMPTY" : $"✅ Found ({configuration["Jwt:Key"]?.Length} chars)")}");
-        Console.WriteLine($"   Issuer: {configuration["Jwt:Issuer"] ?? "❌ NULL"}");
-        Console.WriteLine($"   Audience: {configuration["Jwt:Audience"] ?? "❌ NULL"}");
-        Console.WriteLine($"   ExpiryHours: {configuration["Jwt:ExpiryHours"] ?? "❌ NULL"}");
-
-        // Check database configuration
-        Console.WriteLine("💾 Database Configuration:");
-        Console.WriteLine($"   Provider: {configuration["DatabaseProvider"] ?? "❌ NULL"}");
-        Console.WriteLine($"   Default Connection: {(string.IsNullOrEmpty(configuration.GetConnectionString("Default")) ? "❌ NULL" : "✅ Found")}");
-
-        // Check if files exist
-        var appSettingsPath = Path.Combine(Environment.CurrentDirectory, "appsettings.json");
-        var appSettingsDev = Path.Combine(Environment.CurrentDirectory, "appsettings.Development.json");
-        var appSettingsProd = Path.Combine(Environment.CurrentDirectory, "appsettings.Production.json");
-
-        Console.WriteLine("📄 Configuration Files:");
-        Console.WriteLine($"   appsettings.json: {(File.Exists(appSettingsPath) ? "✅ EXISTS" : "❌ MISSING")}");
-        Console.WriteLine($"   appsettings.Development.json: {(File.Exists(appSettingsDev) ? "✅ EXISTS" : "❌ MISSING")}");
-        Console.WriteLine($"   appsettings.Production.json: {(File.Exists(appSettingsProd) ? "✅ EXISTS" : "❌ MISSING")}");
-
-        Console.WriteLine("🔧 =================================");
+        // 🔍 CONFIGURATION DEBUGGING (Remove in production)
+        LogConfigurationDebugInfo(configuration);
 
         // Database
         services.AddDbContext<BatchIQDbContext>(opt =>
@@ -130,8 +89,6 @@ public static class ServiceCollectionExtensions
                       .AllowAnyMethod();
             });
         });
-
-        // Authentication & Authorization Services
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IDatabaseSeeder, DatabaseSeeder>();
@@ -164,5 +121,36 @@ public static class ServiceCollectionExtensions
         services.AddCustomAuthorization();
 
         return services;
+    }
+
+    private static void LogConfigurationDebugInfo(IConfiguration configuration)
+    {
+        Console.WriteLine("🔧 CONFIGURATION DEBUG INFORMATION");
+        Console.WriteLine("🔧 =================================");
+
+        // Check which files are being loaded
+        if (configuration is IConfigurationRoot configRoot)
+        {
+            Console.WriteLine("📁 Configuration Sources:");
+            foreach (var source in configRoot.Providers)
+            {
+                Console.WriteLine($"   - {source.GetType().Name}: {source}");
+            }
+        }
+
+        // Check current working directory
+        Console.WriteLine($"📂 Current Directory: {Environment.CurrentDirectory}");
+
+        // Check specific JWT configuration values
+        Console.WriteLine("🔑 JWT Configuration:");
+        Console.WriteLine($"   Key: {(string.IsNullOrEmpty(configuration["Jwt:Key"]) ? "❌ NULL/EMPTY" : $"✅ Found ({configuration["Jwt:Key"]?.Length} chars)")}");
+        Console.WriteLine($"   Issuer: {configuration["Jwt:Issuer"] ?? "❌ NULL"}");
+        Console.WriteLine($"   Audience: {configuration["Jwt:Audience"] ?? "❌ NULL"}");
+
+        // Check database configuration
+        Console.WriteLine("💾 Database Configuration:");
+        Console.WriteLine($"   Default Connection: {(string.IsNullOrEmpty(configuration.GetConnectionString("Default")) ? "❌ NULL" : "✅ Found")}");
+
+        Console.WriteLine("🔧 =================================");
     }
 }
